@@ -1,15 +1,15 @@
-# MQTT, MODBUS and ALEXA DIDATIC AND PROTOTYPE KIT
+# MQTT, MODBUS and ALEXA TEACHING AND DEVELOPMENT KIT
 
 [![NPM](https://img.shields.io/npm/l/react)](https://github.com/fabiovince/LinkBox/blob/main/LICENSE) 
 
 # About Project
 
-LinkBox is a WiFi multiprotocol tool designed for internet of things (IOT) and industrial internet of things (IIOT) didactic and development purposes. It is implemented with three ESP32-WROOM-32D. One ESP32 is a MQTT Broker and the remaining two ESP32 are configurable devices. They can be configured to communicate using MODBUS, MQTT or Alexa smart device. 
-                 
+LinkBox is a WiFi multiprotocol tool designed for internet of things (IOT) and industrial internet of things (IIOT) teaching and development purposes. It is implemented with three ESP32-WROOM-32D. One ESP32 is a MQTT Broker and the remaining two ESP32 are configurable devices. 
+
 
 ## Front View
 
-Each device can be used as a MODBUS server or MQTT client or a Alexa smart device. The protocol menu is  acessed when push buttom is pressed for 10 seconds. Menu display the current protocol and SSID. In order to change between protocols press push buttom for 1 second and release it for 2 seconds. If push buttom remain release for more than 6 senconds ESP32 will reboot to load the chosen protocol.
+Each device can be used as a MODBUS server or MQTT client or a Alexa smart device. The config menu can be acessed pressing push buttom for 10 seconds. The menu displays the current protocol and SSID. In order to change between protocols press push buttom for 1 second and release it for 2 seconds. If the button remains released for more than 6 seconds, the ESP32 checks whether the currently displayed protocol is different from the running protocol. If they are different, the ESP32 will reset to load the new chosen protocol.
 
 ![01-frontal_image_new_version](https://github.com/fabiovince/LinkBox/assets/7406537/5c18a51f-e126-49a9-9951-c4c1aa9b8d32)
 
@@ -56,7 +56,7 @@ Each device and the MQTT Broker are independent circuits, so they can be impleme
 - Hardware
   - One ESP32-WROOM-32D
   - One 4pin 0.96 Inch Yellow/Blue I2C Serial 128X64 OLED Display
-- Arduino IDE Firmware:
+- Arduino IDE LinkBox Firmware:
   - Link Dropbox: https://www.dropbox.com/scl/fo/3s1xd0g3zrd0lvtknvdgb/h?rlkey=5u9olarl8w7rnul6cxagvwvpd&dl=0
 - Default IP and Topic:
   - IP: 192.168.1.233
