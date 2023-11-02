@@ -89,7 +89,7 @@ That is, the dashboard is constantly updated with the current state of the hardw
 To run Node-RED on Android it is necessary to install Termux. https://github.com/termux/termux-app/releases <br />
 Youtube - Como Instalar O Termux No Android: https://www.youtube.com/watch?v=rln46ulRFEw
 
-![06 - Node-RED Dashboard with MQTT Connection_01](https://github.com/fabiovince/LinkBox/assets/7406537/c710bdfc-3eca-4f50-a47a-d544ed878615)
+![06 - Node-RED Dashboard with MQTT Connection](https://github.com/fabiovince/LinkBox/assets/7406537/0a58d261-81c1-4c3e-84dd-487c58396671)
 
 MQTTBox is a free software from Microsoft Store. It can be used to test READ/WRITE commands to LinkBox. MQTTBox enables you to create MQTT clients to publish or subscribe to topics, create MQTT virtual device, load test MQTT devices or brokers and much more. Link from Microsoft Store: https://www.microsoft.com/store/productId/9NBLGGH55JZG?ocid=pdpshare
 
