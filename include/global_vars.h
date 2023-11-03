@@ -9,6 +9,8 @@
         //+--- Global ModbusIP object ---+
         extern LbModbusIP mb;
 
+        extern char ca_line3[18]; //OLED display line 3
+
         //+--- Register Type   	Register Number  	Register Size 	Permission
         //+---    Coil				      1-9999				   1 bit			     R/W     ---+
         #define co_LED_GREEN_OFFSET  0  // Offset do Coil Modbus para acionar co_led GREEN (bit=COIL) 

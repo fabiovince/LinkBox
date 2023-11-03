@@ -256,7 +256,7 @@ void LbModbus::ModbusOledLine3(byte fc, word reg, word numregs )
     
     if((fc==3)&&(reg==(holding_regs_offset[0])))
     {
-        char str[] = "RGB. R=";
+        char str[] = "RGB R=";
         strcpy(ca_line3,str);
         char str1[8];
         itoa(Hreg(holding_regs_offset[0]), str1, 10);
@@ -266,7 +266,7 @@ void LbModbus::ModbusOledLine3(byte fc, word reg, word numregs )
 
     if((fc==6)&&(reg==(holding_regs_offset[0])))
     {
-        char str[] = "RGB. R=";
+        char str[] = "RGB R=";
         strcpy(ca_line3,str);
         char str1[8];
         itoa(Hreg(holding_regs_offset[0]), str1, 10);
@@ -278,7 +278,7 @@ void LbModbus::ModbusOledLine3(byte fc, word reg, word numregs )
     
     if((fc==3)&&(reg==(holding_regs_offset[1])))
     {
-        char str[] = "RGB. G=";
+        char str[] = "RGB G=";
         strcpy(ca_line3,str);
         char str1[8];
         itoa(Hreg(holding_regs_offset[1]), str1, 10);
@@ -288,7 +288,7 @@ void LbModbus::ModbusOledLine3(byte fc, word reg, word numregs )
 
     if((fc==6)&&(reg==(holding_regs_offset[1])))
     {
-        char str[] = "RGB. G=";
+        char str[] = "RGB G=";
         strcpy(ca_line3,str);
         char str1[8];
         itoa(Hreg(holding_regs_offset[1]), str1, 10);
@@ -300,7 +300,7 @@ void LbModbus::ModbusOledLine3(byte fc, word reg, word numregs )
 
     if((fc==3)&&(reg==(holding_regs_offset[2])))
     {
-        char str[] = "RGB. B=";
+        char str[] = "RGB B=";
         strcpy(ca_line3,str);
         char str1[8];
         itoa(Hreg(holding_regs_offset[2]), str1, 10);
@@ -310,7 +310,7 @@ void LbModbus::ModbusOledLine3(byte fc, word reg, word numregs )
 
     if((fc==6)&&(reg==(holding_regs_offset[2])))
     {
-        char str[] = "RGB. B=";
+        char str[] = "RGB B=";
         strcpy(ca_line3,str);
         char str1[8];
         itoa(Hreg(holding_regs_offset[2]), str1, 10);

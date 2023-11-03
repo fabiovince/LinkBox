@@ -172,11 +172,37 @@ void Callback(char *topic, uint8_t *jsonChar, unsigned int length)
             //+--------------------------------------------------------------------------------------------+ 
             if((fc == 1)&&(address == co_LED_GREEN_OFFSET))
             {
+                mb.OledLine2("TT-FC:01(");
+                if(mb.Coil(co_LED_GREEN_OFFSET)==1)
+                { 
+                    char str[] = " LED GRN=1     ";
+                    strcpy(ca_line3,str);  
+                } 
+                else 
+                { 
+                    char str[] = " LED GRN=0     ";
+                    strcpy(ca_line3,str);  
+                } 
+                mb.OledUpdate();
+
                 MqttSend_ModbusFrame(b_MqttStatus, mb.Coil(co_LED_GREEN_OFFSET), fc, unitid, address, quantity, currFrameNumber);
             }
             //
             if((fc == 1)&&(address == co_LED_RED_OFFSET))
             {
+                mb.OledLine2("TT-FC:01(");
+                if(mb.Coil(co_LED_RED_OFFSET)==1)
+                { 
+                    char str[] = " LED RED=1     ";
+                    strcpy(ca_line3,str);  
+                } 
+                else 
+                { 
+                    char str[] = " LED RED=0     ";
+                    strcpy(ca_line3,str);  
+                } 
+                mb.OledUpdate();
+
                 MqttSend_ModbusFrame(b_MqttStatus, mb.Coil(co_LED_RED_OFFSET), fc, unitid, address, quantity, currFrameNumber);
             }
 
@@ -185,11 +211,37 @@ void Callback(char *topic, uint8_t *jsonChar, unsigned int length)
             //+--------------------------------------------------------------------------------------------+ 
             if((fc == 2)&&(address == di_RETN_BUTTON_OFFSET))
             {
+                mb.OledLine2("TT-FC:02(");
+                if(mb.Ists(di_RETN_BUTTON_OFFSET)==1)
+                {           
+                    char str[] = "BT. RETN=1   ";
+                    strcpy(ca_line3,str); 
+                } 
+                else
+                { 
+                    char str[] = "BT. RETN=0   ";
+                    strcpy(ca_line3,str); 
+                } 
+                mb.OledUpdate();
+ 
                 MqttSend_ModbusFrame(b_MqttStatus, mb.Ists(di_RETN_BUTTON_OFFSET), fc, unitid, address, quantity, currFrameNumber);
             }
             //
             if((fc == 2)&&(address == di_PUSH_BUTTON_OFFSET))
             {
+                mb.OledLine2("TT-FC:02(");
+                if(mb.Ists(di_PUSH_BUTTON_OFFSET)==1)
+                {           
+                    char str[] = "BT. PUSH=1   ";
+                    strcpy(ca_line3,str); 
+                } 
+                else
+                { 
+                    char str[] = "BT. PUSH=0   ";
+                    strcpy(ca_line3,str); 
+                } 
+                mb.OledUpdate();
+
                 MqttSend_ModbusFrame(b_MqttStatus, mb.Ists(di_PUSH_BUTTON_OFFSET), fc, unitid, address, quantity, currFrameNumber);
             }
 
@@ -198,16 +250,43 @@ void Callback(char *topic, uint8_t *jsonChar, unsigned int length)
             //+--------------------------------------------------------------------------------------------+ 
             if((fc == 3)&&(address == hr_RGB_R_OFFSET))
             {
+                mb.OledLine2("TT-FC:03(");
+                char str[] = "RGB R=";
+                strcpy(ca_line3,str);
+                char str1[8];
+                itoa(mb.Hreg(hr_RGB_R_OFFSET), str1, 10);
+                strcat(ca_line3,str1); 
+                strcat(ca_line3,"%");
+                mb.OledUpdate();
+        
                 MqttSend_ModbusFrame(b_MqttStatus, mb.Hreg(hr_RGB_R_OFFSET), fc, unitid, address, quantity, currFrameNumber);
             }
             //
             if((fc == 3)&&(address == hr_RGB_G_OFFSET))
             {
+                mb.OledLine2("TT-FC:03(");
+                char str[] = "RGB G=";
+                strcpy(ca_line3,str);
+                char str1[8];
+                itoa(mb.Hreg(hr_RGB_G_OFFSET), str1, 10);
+                strcat(ca_line3,str1); 
+                strcat(ca_line3,"%");
+                mb.OledUpdate();
+
                 MqttSend_ModbusFrame(b_MqttStatus, mb.Hreg(hr_RGB_G_OFFSET), fc, unitid, address, quantity, currFrameNumber);
             }
             //
             if((fc == 3)&&(address == hr_RGB_B_OFFSET))
             {
+                mb.OledLine2("TT-FC:03(");
+                char str[] = "RGB B=";
+                strcpy(ca_line3,str);
+                char str1[8];
+                itoa(mb.Hreg(hr_RGB_B_OFFSET), str1, 10);
+                strcat(ca_line3,str1); 
+                strcat(ca_line3,"%");
+                mb.OledUpdate();
+
                 MqttSend_ModbusFrame(b_MqttStatus, mb.Hreg(hr_RGB_B_OFFSET), fc, unitid, address, quantity, currFrameNumber);
             }
 
@@ -217,11 +296,27 @@ void Callback(char *topic, uint8_t *jsonChar, unsigned int length)
             //+--------------------------------------------------------------------------------------------+ 
             if((fc == 4)&&(address == ir_POT_LEFT_OFFSET))
             {
+                mb.OledLine2("TT-FC:04(");
+                char str[] = "PO. L=";
+                strcpy(ca_line3,str);
+                char str1[8];
+                itoa(mb.Ireg(ir_POT_LEFT_OFFSET), str1, 10);
+                strcat(ca_line3,str1); 
+                mb.OledUpdate();
+
                 MqttSend_ModbusFrame(b_MqttStatus, mb.Ireg(ir_POT_LEFT_OFFSET), fc, unitid, address, quantity, currFrameNumber);
             }
             //
             if((fc == 4)&&(address == ir_POT_RIGHT_OFFSET))
             {
+                mb.OledLine2("TT-FC:04(");
+                char str[] = "PO. R=";
+                strcpy(ca_line3,str);
+                char str1[8];
+                itoa(mb.Ireg(ir_POT_RIGHT_OFFSET), str1, 10);
+                strcat(ca_line3,str1);
+                mb.OledUpdate();
+
                 MqttSend_ModbusFrame(b_MqttStatus, mb.Ireg(ir_POT_RIGHT_OFFSET), fc, unitid, address, quantity, currFrameNumber);
             }
 
@@ -236,14 +331,42 @@ void Callback(char *topic, uint8_t *jsonChar, unsigned int length)
             //+--------------------------------------------------------------------------------------------+ 
             if((fc == 5)&&(address == co_LED_GREEN_OFFSET))
             {
-                  mb.Coil(co_LED_GREEN_OFFSET, value);
-                  MqttSend_ModbusFrame(b_MqttStatus, mb.Coil(co_LED_GREEN_OFFSET), fc, unitid, address, quantity, currFrameNumber);
+                mb.Coil(co_LED_GREEN_OFFSET, value);
+                //
+                mb.OledLine2("TT-FC:05(");
+                if(mb.Coil(co_LED_GREEN_OFFSET)==1)
+                { 
+                    char str[] = " LED GRN=1     ";
+                    strcpy(ca_line3,str);  
+                } 
+                else 
+                { 
+                    char str[] = " LED GRN=0     ";
+                    strcpy(ca_line3,str);  
+                } 
+                mb.OledUpdate();
+                //
+                MqttSend_ModbusFrame(b_MqttStatus, mb.Coil(co_LED_GREEN_OFFSET), fc, unitid, address, quantity, currFrameNumber);
             }
             //
             if((fc == 5)&&(address == co_LED_RED_OFFSET))
             {
-                  mb.Coil(co_LED_RED_OFFSET, value);
-                  MqttSend_ModbusFrame(b_MqttStatus, mb.Coil(co_LED_RED_OFFSET), fc, unitid, address, quantity, currFrameNumber);
+                mb.Coil(co_LED_RED_OFFSET, value);
+                //
+                mb.OledLine2("TT-FC:05(");
+                if(mb.Coil(co_LED_RED_OFFSET)==1)
+                { 
+                    char str[] = " LED RED=1     ";
+                    strcpy(ca_line3,str);  
+                } 
+                else 
+                { 
+                    char str[] = " LED RED=0     ";
+                    strcpy(ca_line3,str);  
+                } 
+                mb.OledUpdate();
+                //
+                MqttSend_ModbusFrame(b_MqttStatus, mb.Coil(co_LED_RED_OFFSET), fc, unitid, address, quantity, currFrameNumber);
             }
 
           
@@ -253,18 +376,48 @@ void Callback(char *topic, uint8_t *jsonChar, unsigned int length)
             if((fc == 6)&&(address == hr_RGB_R_OFFSET))
             {
                 mb.Hreg(hr_RGB_R_OFFSET, value);
+                //
+                mb.OledLine2("TT-FC:06(");
+                char str[] = "RGB R=";
+                strcpy(ca_line3,str);
+                char str1[8];
+                itoa(mb.Hreg(hr_RGB_R_OFFSET), str1, 10);
+                strcat(ca_line3,str1); 
+                strcat(ca_line3,"%");
+                mb.OledUpdate();
+                //
                 MqttSend_ModbusFrame(b_MqttStatus, mb.Hreg(hr_RGB_R_OFFSET), fc, unitid, address, quantity, currFrameNumber);
             }
             //
             if((fc == 6)&&(address == hr_RGB_G_OFFSET))
             {
                 mb.Hreg(hr_RGB_G_OFFSET, value);
+                //
+                mb.OledLine2("TT-FC:06(");
+                char str[] = "RGB G=";
+                strcpy(ca_line3,str);
+                char str1[8];
+                itoa(mb.Hreg(hr_RGB_G_OFFSET), str1, 10);
+                strcat(ca_line3,str1); 
+                strcat(ca_line3,"%");
+                mb.OledUpdate();
+                //
                 MqttSend_ModbusFrame(b_MqttStatus, mb.Hreg(hr_RGB_G_OFFSET), fc, unitid, address, quantity, currFrameNumber);
             }
             //
             if((fc == 6)&&(address == hr_RGB_B_OFFSET))
             {
                 mb.Hreg(hr_RGB_B_OFFSET, value);
+                //
+                mb.OledLine2("TT-FC:06(");
+                char str[] = "RGB B=";
+                strcpy(ca_line3,str);
+                char str1[8];
+                itoa(mb.Hreg(hr_RGB_B_OFFSET), str1, 10);
+                strcat(ca_line3,str1); 
+                strcat(ca_line3,"%");
+                mb.OledUpdate();
+                //
                 MqttSend_ModbusFrame(b_MqttStatus, mb.Hreg(hr_RGB_B_OFFSET), fc, unitid, address, quantity, currFrameNumber);
             }
       #endif

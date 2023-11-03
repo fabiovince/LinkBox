@@ -84,6 +84,15 @@ void Protocol_Menu()
             ESP.restart(); 
         }
 
+        if(by_menu_option == by_stored_protocol_option) //Restore Current Menu
+        { 
+            mb.OledLine1(s_oled_header);
+            mb.OledLine2("             ");
+            mb.OledLine3("             ");
+            mb.OledUpdate();
+            by_menu_option=100;
+        }
+
         if(WiFi.waitForConnectResult() != WL_CONNECTED)
         {
             ESP.restart(); 
@@ -136,10 +145,10 @@ void Protocol_Menu()
 
         default:    
                IsPushButtonReleased(10); //Unlocks the action of pressing the push button (b_Pressed_Block=false) for a new choice
-               mb.OledLine1(" =>MODBUS     ");
-               mb.OledLine2(" DEFALUT      ");
-               mb.OledLine3("              ");
-               mb.OledUpdate_Static(2,2,2);
+               //mb.OledLine1(" =>MODBUS     ");
+               //mb.OledLine2(" DEFALUT      ");
+               //mb.OledLine3("              ");
+               //mb.OledUpdate_Static(2,2,2);
         break;
     }
   
