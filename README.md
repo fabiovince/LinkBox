@@ -56,7 +56,7 @@ Each device and the MQTT Broker are independent circuits, so they can be impleme
 - Hardware
   - One ESP32-WROOM-32D
   - One 4pin 0.96 Inch Yellow/Blue I2C Serial 128X64 OLED Display
-- Arduino IDE LinkBox Firmware:
+- Arduino IDE Firmware:
   - Link Dropbox: https://www.dropbox.com/scl/fo/3s1xd0g3zrd0lvtknvdgb/h?rlkey=5u9olarl8w7rnul6cxagvwvpd&dl=0
 - Visual Studio Code Firmware:
   - Link Dropbox: https://www.dropbox.com/scl/fo/gfumtkryxjqzg8iw3tzoe/h?rlkey=7hv993cm2ldkpp1nkzs729fbd&dl=0
