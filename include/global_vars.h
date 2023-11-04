@@ -1,6 +1,14 @@
 #ifndef GLOBAL_VARS_H
 #define GLOBAL_VARS_H
 
+        //+----------------------------------------------------------------+
+        //+--- To enable MOTOR KIT project uncomment directives below:
+        //#define Enable_OLED_MOTOR_messages
+        //#define Enable_ArduinoRelay  //Inverse Logic, because when input signal of Arduino Relay is 0 (Zero) the outpup is NO
+        //#define Enable_AHT10 
+        //+----------------------------------------------------------------+
+
+
         /* types for global vars */
         //+--- MODBUS -------+
         #include <LbModbus.h>  //Adicionar essa lib: Rascunho->Incluir Biblioteca->Adicionar Biblioteca.ZIP...  Modbus.zip
@@ -65,9 +73,6 @@
         /*************** BUTTONS GPIO define ****************************************/
         #define def_pin_RETN_BUTTON 18  //GPIO5
         #define def_pin_PUSH_BUTTON 5 //GPIO18
-
-
-
 
 
 
@@ -140,6 +145,25 @@
         //+--------- OLED -------------+
         //+----------------------------+
         extern char s_oled_header[40];
+
+
+        //+----------------------------+
+        //+--------- AHT10 ------------+
+        //+----------------------------+
+        //+--- Sensor AHT10 ---+
+        #include <Adafruit_AHTX0.h>
+
+        //#ifdef Enable_AHT10
+        //#include <AHT10.h>
+        //int ahtValue;  //to store T/RH result
+        //AHTxx aht10(AHTXX_ADDRESS_X38, AHT1x_SENSOR); //sensor address, sensor type
+        //Adafruit_AHTX0 aht10; //sensor address, sensor type
+        //#endif
+        extern bool b_AHT10_INIT_OK;
+        extern Adafruit_AHTX0 aht10; //sensor address, sensor type
+
+
+
 
 
 #endif

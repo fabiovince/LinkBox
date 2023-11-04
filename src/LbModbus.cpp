@@ -8,6 +8,7 @@
 //  by Prof. Fábio Vincenzi and Prof. Renato Carrijo                                           |
 //                                                                 Updated: 2023/11/02         |         
 //+--------------------------------------------------------------------------------------------+
+#include "global_vars.h"
 
 #include <Arduino.h>
 #include "LbModbus.h"
@@ -139,7 +140,7 @@ void LbModbus::ModbusOledLine3(byte fc, word reg, word numregs )
     //+---    Coil				      1-9999				   1 bit			     R/W     ---+
     if(((fc==1)||(fc==5))&&(reg==(coils_offset[0])))
     { 
-        #ifdef MOTOR
+        #ifdef Enable_OLED_MOTOR_messages
             if(Coil(coils_offset[0])==1)
             { 
                 char str[] = " MOTOR ON   ";
@@ -216,7 +217,7 @@ void LbModbus::ModbusOledLine3(byte fc, word reg, word numregs )
     //+--- Input Register	  30001-39999		   16 bit	        R     ---+
     if((fc==4)&&(reg==(input_regs_offset[0])))
     {
-        #ifdef MOTOR
+        #ifdef Enable_OLED_MOTOR_messages
             char str[] = "  TMP=";
             strcpy(ca_line3,str);
             char str1[8];
@@ -234,7 +235,7 @@ void LbModbus::ModbusOledLine3(byte fc, word reg, word numregs )
     //
     if((fc==4)&&(reg==(input_regs_offset[1])))
     {
-        #ifdef MOTOR
+        #ifdef Enable_OLED_MOTOR_messages
             char str[] = "  UR=";
             strcpy(ca_line3,str);
             char str1[8];

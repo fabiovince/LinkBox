@@ -114,16 +114,12 @@
 //
 #define LB9_mqtt_broker_IP "192.168.1.249"
 
-//+--- REN ----------------------------+
-#define REN_Id1_MAC "08:3A:F2:B8:46:xx"
-#define REN_Id1_client "REN-SERVER-01-"
-#define REN_Id1_MQTT 1
+//+--- MOTOR SERVER ----------------------------+
+#define MOTOR_Id1_MAC "08:3A:F2:B7:53:DC"
+#define MOTOR_Id1_client "MotorKIT-1/4cv-SERVER-"
+#define MOTOR_Id1_MQTT 1
 //
-#define REN_Id2_MAC "08:3A:F2:B8:46:xx"
-#define REN_Id2_client "REN-SERVER-02-"
-#define REN_Id2_MQTT 2
-//
-#define REN_mqtt_broker_IP "192.168.1.230"
+#define MOTOR_mqtt_broker_IP "192.168.1.233"
 
 //+--- FAB ----------------------------+
 #define FAB_Id1_MAC "40:22:D8:3D:81:A8"

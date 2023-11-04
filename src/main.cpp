@@ -1,5 +1,5 @@
 //+---------------------------------------------------------------------------------------------+
-//|   Didatic KIT - LinkBox - Developed to to support learning the following subjects:          |
+//|   Didatic KIT - LinkBox - Developed to support learning the following subjects:             |
 //    Industrial Informatics II, Home Automation and Industrial Networks I of                   |
 //    Automation and Control Engineering Course - Federal University of Uberlândia (FEELT/UFU)  |
 //    by Prof. Fábio Vincenzi and Prof. Renato Carrijo                                          |
@@ -8,7 +8,6 @@
 
 #include <WiFi.h>
 #include <Alexa.h>
-#include <Adafruit_AHTX0.h>
 #include <ESPmDNS.h>
 #include <WiFiUdp.h>
 #include <Arduino.h>
@@ -16,7 +15,6 @@
 #include "SSID_PASSWORD.h"
 #include "global_vars.h"
 
-//#define Enable_ArduinoRelay  //Inverse Logic, because when input signal of Arduino Relay is 0 (Zero) the outpup is NO
 
 //+--- Alexa ---+
 fauxmoESP fauxmo;
@@ -27,19 +25,19 @@ fauxmoESP fauxmo;
 #include <Adafruit_GFX.h>
 #include <Adafruit_SSD1306.h>
 
-//+--- Sensor AHT10 ---+
-//#define Enable_AHT10
 
+//+--- Sensor AHT10 ---+
 #ifdef Enable_AHT10
-  #include "AHT10.h"
+  #include <Adafruit_AHTX0.h>
+  #include <AHT10.h>
+  bool b_AHT10_INIT_OK = false;
   int ahtValue;  //to store T/RH result
-  AHTxx aht10(AHTXX_ADDRESS_X38, AHT1x_SENSOR); //sensor address, sensor type
+  Adafruit_AHTX0 aht10; //sensor address, sensor type
 #endif
+
 
 //+--- CONFIG ---+/
 #include "CONFIG.h"
-
-//#define Enable_DEBUG
 
 //PROTOCOLS
 String s_client_id="";
@@ -453,8 +451,7 @@ void setup()
     else if(s_mac==LB9_Id1_MAC){ s_client_id += LB9_Id1_client; s_mqtt_broker_IP += LB9_mqtt_broker_IP; u_thisDeviceId= LB9_Id1_MQTT; }
     else if(s_mac==LB9_Id2_MAC){ s_client_id += LB9_Id2_client; s_mqtt_broker_IP += LB9_mqtt_broker_IP; u_thisDeviceId= LB9_Id2_MQTT; }
     //
-    else if(s_mac==REN_Id1_MAC){ s_client_id += REN_Id1_client; s_mqtt_broker_IP += REN_mqtt_broker_IP; u_thisDeviceId= REN_Id1_MQTT; }
-    else if(s_mac==REN_Id2_MAC){ s_client_id += REN_Id2_client; s_mqtt_broker_IP += REN_mqtt_broker_IP; u_thisDeviceId= REN_Id2_MQTT; }
+    else if(s_mac==MOTOR_Id1_MAC){ s_client_id += MOTOR_Id1_client; s_mqtt_broker_IP += MOTOR_mqtt_broker_IP; u_thisDeviceId= MOTOR_Id1_MQTT; }
     //
     else if(s_mac==FAB_Id1_MAC){ s_client_id += FAB_Id1_client; s_mqtt_broker_IP += FAB_mqtt_broker_IP; u_thisDeviceId= FAB_Id1_MQTT; }
     else if(s_mac==FAB_Id2_MAC){ s_client_id += FAB_Id2_client; s_mqtt_broker_IP += FAB_mqtt_broker_IP; u_thisDeviceId= FAB_Id2_MQTT; }
@@ -485,10 +482,12 @@ void setup()
                 
                 if(b_AHT10_INIT_OK == true) //Read temperature and humidity if the AHT10 sensor has been initialized correctly
                 {
-                  ahtValue = aht10.readTemperature();   //read 6-bytes via I2C, takes 80 milliseconds
+                  sensors_event_t humidity, temp;
+                  aht10.getEvent(&humidity, &temp);// populate temp and humidity objects with fresh data
+                  ahtValue = temp.temperature;   //read 6-bytes via I2C, takes 80 milliseconds
                   mb.Ireg(ir_TEMPTURE_OFFSET, ahtValue);  //+--- reads from the AHT10 sensor and copy the value to the Modbus ir_TEMPTURE_OFFSET offset register
                   //Serial.printf("\nTEMPTURE=%d",ahtValue);
-                  ahtValue = aht10.readHumidity();      //read 6-bytes from I2C, takes 80 milliseconds
+                  ahtValue = humidity.relative_humidity; //read 6-bytes from I2C, takes 80 milliseconds
                   mb.Ireg(ir_HUMIDITY_OFFSET, ahtValue); //+--- reads from AHT10 sensor and copy the value to the Modbus ir_HUMIDITY_OFFSET offset register
                   //Serial.printf("\nHUMIDITY=%d",ahtValue);
                 }
@@ -505,7 +504,6 @@ void setup()
     // No authentication by default
     //ArduinoOTA.setPassword("admin");
     //ArduinoOTA.setPassword("");
-    //ArduinoOTA.setPassword("domus3312");
     //
     //
     // cc_password can be set with it's md5 value as well
@@ -793,11 +791,13 @@ void loop()
                     //+--- MODBUS Atualiza os registradores (Input Registers) dos potenciômetros ---+
                     //+--- Register Type   	Register Number  	Register Size 	Permission            +
                     //+--- Input Register	  30001-39999		       16 bit	         Read               +
-                    ahtValue = aht10.readTemperature();   //read 6-bytes via I2C, takes 80 milliseconds
-                    mb.Ireg(ir_TEMPTURE_OFFSET, ahtValue);  //+--- Copia o valor da temperatura lida no sensor AHT10 para o registrador Modbus ir_TEMPTURE_OFFSET
+                    sensors_event_t humidity, temp;
+                    aht10.getEvent(&humidity, &temp);// populate temp and humidity objects with fresh data
+                    ahtValue = temp.temperature;   //read 6-bytes via I2C, takes 80 milliseconds
+                    mb.Ireg(ir_TEMPTURE_OFFSET, ahtValue);  //+--- reads from the AHT10 sensor and copy the value to the Modbus ir_TEMPTURE_OFFSET offset register
                     //Serial.printf("\nTEMPTURE=%d",ahtValue);
-                    ahtValue = aht10.readHumidity();      //read 6-bytes via I2C, takes 80 milliseconds
-                    mb.Ireg(ir_HUMIDITY_OFFSET, ahtValue); //+--- Copia o valor da umidade lida no sensor AHT10 para o registrador Modbus ir_HUMIDITY_OFFSET  
+                    ahtValue = humidity.relative_humidity; //read 6-bytes from I2C, takes 80 milliseconds
+                    mb.Ireg(ir_HUMIDITY_OFFSET, ahtValue); //+--- reads from AHT10 sensor and copy the value to the Modbus ir_HUMIDITY_OFFSET offset register
                     //Serial.printf("\nHUMIDITY=%d",ahtValue);
                 }
             #else
