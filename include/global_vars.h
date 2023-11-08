@@ -1,12 +1,17 @@
 #ifndef GLOBAL_VARS_H
 #define GLOBAL_VARS_H
 
-        //+----------------------------------------------------------------+
+        //+----------------------------------------------------------------------------+
         //+--- To enable MOTOR KIT project uncomment directives below:
         //#define Enable_OLED_MOTOR_messages
         //#define Enable_ArduinoRelay  //Inverse Logic, because when input signal of Arduino Relay is 0 (Zero) the outpup is NO
         //#define Enable_AHT10 
-        //+----------------------------------------------------------------+
+        //+----------------------------------------------------------------------------+
+
+        //+----------------------------------------------------------------------------+
+        //+--- If Enable_COMMON_ANODE_RGB is not defined, common  cathode is selected:
+        #define Enable_COMMON_ANODE_RGB
+        //+----------------------------------------------------------------------------+
 
 
         /* types for global vars */
@@ -92,9 +97,11 @@
         extern bool b_GoToMenu;
         extern bool b_MenuFirstCall;
         extern char by_menu_option;
-        extern char by_stored_protocol_option;
+        extern unsigned int by_stored_protocol_option;
         extern bool b_MenuHold; //Mantem o menu ativado até que uma escolha seja realizada ou detecte inatividade por 5 ou mais segundos
         extern bool b_GoToLoop;
+        extern String s_mac;
+        //
    
         //
         extern String s_client_id;
@@ -111,6 +118,23 @@
 
         //+--- Menu.cpp Global Vars ---+
         extern void Protocol_Menu();
+        extern void ButtomMenuCheck();
+        //+--- PUSH BUTTON ---+
+        extern unsigned long ul_PushButton_PrevTime;
+        extern bool b_Pressed_Block;
+        extern bool b_Released_Block;
+        extern unsigned int ui_ms_button_pressed;
+
+        //+--- PROTOCOL MENU OPTIONS ---+
+        enum Protocols
+        {
+                MODBUS_PROTOCOL_LinkBox = 0x00, // MODBUS PROTOCOL
+                MODBUS_PROTOCOL_1C205 = 0x01, // MODBUS PROTOCOL
+                MQTT_PROTOCOL   = 0x02, // MQTT PROTOCOL
+                OPC_UA_PROTOCOL  = 0x03, // OPC UA PROTOCOL
+                ALEXA_PROTOCOL  = 0X04, // ALEXA
+        };
+
 
         /***************  Telnet ********************************/
         //extern WiFiServer TelnetServer(23); // Telnet Server Declaration port 23
@@ -129,15 +153,6 @@
         extern bool b_MqttStatus;
         extern String s_mqtt_broker_IP; 
         extern uint8_t u_thisDeviceId; //Client/Slave Device Number (usado na comunicação MQTT para diferenciar dispositivos)
-
-        // MQTT Broker
-        //const char *mqtt_broker = "test.mosquitto.org";  //Host do broket
-        //const char *mqtt_broker = "192.168.1.233";  //Host do broket
-        //
-        extern const char *topic;   //Tópico LinkBox Servidor 
-        extern const char *mqtt_username;  //Usuario
-        extern const char *mqtt_cc_password; //Senha
-        extern const int mqtt_port; //Porta
 
 
  

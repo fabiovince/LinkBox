@@ -9,15 +9,7 @@
 #include "global_vars.h"
 
 
-  //+--- PROTOCOL MENU OPTIONS ---+
-  enum 
-  {
-      MODBUS_LinkBox = 0x00, // MODBUS PROTOCOL
-      MODBUS_1C205 = 0x01, // MODBUS PROTOCOL
-      MQTT   = 0x02, // MQTT PROTOCOL
-      OPC_UA  = 0x03, // OPC UA PROTOCOL
-      ALEXA  = 0X04, // ALEXA
-  };
+//+----------------------------------------------------------------------------------+
 
 void Protocol_Menu()
 {
@@ -62,7 +54,7 @@ void Protocol_Menu()
         mb.OledLine3("             ");
         mb.OledUpdate();
         
-        if(by_menu_option == OPC_UA)
+        if(by_menu_option == OPC_UA_PROTOCOL)
         {
             by_menu_option=by_stored_protocol_option;
             mb.OledLine2("             ");
@@ -103,7 +95,7 @@ void Protocol_Menu()
     switch(by_menu_option) 
     {
 
-        case MODBUS_LinkBox:  
+        case MODBUS_PROTOCOL_LinkBox:  
               IsPushButtonReleased(10); //Unlocks the action of pressing the push button (b_Pressed_Block=false) for a new choice
               mb.OledLine1(" =>MODBUS     ");
               mb.OledLine2("   SSID:      ");
@@ -111,7 +103,7 @@ void Protocol_Menu()
               mb.OledUpdate_Static(2,2,2);
         break;
 
-        case MODBUS_1C205:  
+        case MODBUS_PROTOCOL_1C205:  
               IsPushButtonReleased(10); //Unlocks the action of pressing the push button (b_Pressed_Block=false) for a new choice
               mb.OledLine1(" =>MODBUS     ");
               mb.OledLine2("   SSID:      ");
@@ -119,7 +111,7 @@ void Protocol_Menu()
               mb.OledUpdate_Static(2,2,2);
         break;
       
-        case MQTT:
+        case MQTT_PROTOCOL:
               IsPushButtonReleased(10); //Unlocks the action of pressing the push button (b_Pressed_Block=false) for a new choice
               mb.OledLine1("  =>MQTT     ");
               mb.OledLine2("   SSID:     ");
@@ -127,7 +119,7 @@ void Protocol_Menu()
               mb.OledUpdate_Static(2,2,2);
         break;
 
-        case OPC_UA:
+        case OPC_UA_PROTOCOL:
               IsPushButtonReleased(10); //Unlocks the action of pressing the push button (b_Pressed_Block=false) for a new choice
               mb.OledLine1("             ");
               mb.OledLine2(" =>OPC UA    ");
@@ -135,7 +127,7 @@ void Protocol_Menu()
               mb.OledUpdate_Static(2,2,2);
         break;
 
-        case ALEXA:
+        case ALEXA_PROTOCOL:
               IsPushButtonReleased(10); //Unlocks the action of pressing the push button (b_Pressed_Block=false) for a new choice
               mb.OledLine1(" =>ALEXA      ");
               mb.OledLine2("   SSID:      ");
@@ -154,5 +146,73 @@ void Protocol_Menu()
   
 }
 
+
+//+----------------------------------------------------------------------------------+
+void ButtomMenuCheck()
+{
+    //+--- loop button pressed/released timming ---+
+    if(millis()<ul_PushButton_PrevTime){ ul_PushButton_PrevTime=millis(); } //millis() will overflow (go back to zero), after approximately 50 days. So, when it happens ul_PushButton_PrevTime must be reseted
+    if(millis()-ul_PushButton_PrevTime>=1) 
+    {
+      ul_PushButton_PrevTime=millis();
+      
+      //+--- Lê o PUSH Button ---+
+      if(digitalRead(def_pin_PUSH_BUTTON) == 1)
+      {
+          ui_ms_button_pressed++; 
+          ui_ms_button_released=0; 
+          //char str1[8]; // DEBUG
+          //itoa(ui_ms_button_pressed, str1, 10); // DEBUG
+          //mb.OledLine3(str1); // DEBUG
+          //mb.OledLine2("Step 1 OK     "); // DEBUG
+      }    
+      
+      if(digitalRead(def_pin_PUSH_BUTTON) == 0)
+      {
+          ui_ms_button_pressed=0; 
+          ui_ms_button_released++; 
+          //char str1[8]; // DEBUG
+          //itoa(ui_ms_button_released, str1, 10); // DEBUG
+          //mb.OledLine3(str1); // DEBUG
+          //mb.OledLine2("            "); // DEBUG
+      }        
+      
+      //+--- Checks if the push button is pressed for a while to access the menu
+      if((IsPushButtonPressed(200))&&(b_MenuHold==false))
+      {
+        //mb.OledLine2("Step 2 OK     "); // DEBUG
+        b_GoToMenu=true;
+        b_MenuHold=true;
+        b_MenuFirstCall=true; 
+      }
+
+    } // END - button pressed/released timing loop ---+
+   
+}
+
+//+----------------------------------------------------------------------------------+
+bool IsPushButtonPressed(unsigned int ms)
+{
+  if((ui_ms_button_pressed>ms)&&(b_Pressed_Block==false))
+  { 
+      b_Pressed_Block=true; 
+      b_Released_Block=false; 
+      return true; 
+  }
+  return false;
+}
+
+//+----------------------------------------------------------------------------------+
+
+bool IsPushButtonReleased(unsigned int ms)
+{
+  if((ui_ms_button_released>ms)&&(b_Released_Block==false))
+  { 
+      b_Pressed_Block=false; 
+      b_Released_Block=true; 
+      return true; 
+  }
+  return false;
+}
 
 //+----------------------------------------------------------------------------------+
