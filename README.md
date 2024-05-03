@@ -143,7 +143,7 @@ Automation and Control Engineering Course - Federal University of Uberlândia (F
 
 # Autors
 
-Prof. Fábio Vincenzi and Prof. Renato Carrijo
+Prof. Fábio Vincenzi, Prof. Renato Carrijo and Prof. Renato Fernandes
 
 
 
