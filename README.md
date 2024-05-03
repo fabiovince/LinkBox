@@ -138,7 +138,7 @@ Link from Dropbox: https://www.dropbox.com/scl/fo/xynmp47ol7sotwd9gwftd/h?rlkey=
 ScadaBR for Linux Installation download.
 Link from Dropbox: https://www.dropbox.com/scl/fo/tbormiz7tivm6j3hyt6f6/h?rlkey=o1a42fnvvhi7lunzpy7kgiube&dl=0
 
-It was developed to attend the following subjects: Industrial Informatic II, Home Automation and Industrial Networks I of                    |
+It was developed to attend the following subjects: Industrial Informatic II, Home Automation and Industrial Networks I and II of                    |
 Automation and Control Engineering Course - Federal University of Uberlândia (FEELT/UFU)   
 
 # Autors
