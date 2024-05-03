@@ -47,11 +47,11 @@ void Alexa_Config()
                     
                     if (state) 
                     {
-                        mb.Coil(0,1);  // Turn the MOTOR ON
+                        mb1.Coil(0,1);  // Turn the MOTOR ON
                     } 
                     else 
                     {
-                        mb.Coil(0,0);  // Turn the MOTOR OFF
+                        mb1.Coil(0,0);  // Turn the MOTOR OFF
                     }
               }
         });

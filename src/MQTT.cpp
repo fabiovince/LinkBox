@@ -8,6 +8,7 @@
 
 #include "MQTT.h"
 #include "global_vars.h"
+#include <Adafruit_SSD1306.h>
 
 char ca_OLED_line3[18]="";  //
 
@@ -86,10 +87,7 @@ void Callback(char *topic, uint8_t *jsonChar, unsigned int length)
           String origin = frame["origin"];
           uint8_t unitid = frame["unitid"];
           uint16_t currFrameNumber = frame["fn"];
-
-  
-          
-          
+         
           //uint16_t value = frame["value"];
           //uint8_t fc = frame["fc"];
           //uint16_t address = frame["address"];
@@ -146,9 +144,9 @@ void Callback(char *topic, uint8_t *jsonChar, unsigned int length)
               frame["pot_left"] = analogRead(def_pin_POT_LEFT);
               frame["pot_right"] = analogRead(def_pin_POT_RIGHT);
               //
-              frame["rgb_red"] = mb.Hreg(hr_RGB_R_OFFSET);
-              frame["rgb_green"] = mb.Hreg(hr_RGB_G_OFFSET);
-              frame["rgb_blue"] = mb.Hreg(hr_RGB_B_OFFSET);
+              frame["rgb_red"] = mb1.Hreg(hr_RGB_R_OFFSET);
+              frame["rgb_green"] = mb1.Hreg(hr_RGB_G_OFFSET);
+              frame["rgb_blue"] = mb1.Hreg(hr_RGB_B_OFFSET);
               //
               frame["unitid"] = unitid;
               frame["origin"] = "server";
@@ -170,260 +168,116 @@ void Callback(char *topic, uint8_t *jsonChar, unsigned int length)
             //+--------------------------------------------------------------------------------------------+                    
             //+--- Function Code READ: Coils (FC=01) ------------------------------------------------------+                    
             //+--------------------------------------------------------------------------------------------+ 
-            if((fc == 1)&&(address == co_LED_GREEN_OFFSET))
+            if (fc == 1) 
             {
-                mb.OledLine2("TT-FC:01(");
-                if(mb.Coil(co_LED_GREEN_OFFSET)==1)
-                { 
-                    char str[] = " LED GRN=1     ";
-                    strcpy(ca_line3,str);  
-                } 
-                else 
-                { 
-                    char str[] = " LED GRN=0     ";
-                    strcpy(ca_line3,str);  
-                } 
-                mb.OledUpdate();
+                bool auxval;
+                lbmb.OledLine2("TT-FC:01(");
+                auxval = lbmb.OledShowValueFc1(fc,address);            
 
-                MqttSend_ModbusFrame(b_MqttStatus, mb.Coil(co_LED_GREEN_OFFSET), fc, unitid, address, quantity, currFrameNumber);
-            }
+                MqttSend_ModbusFrame(b_MqttStatus, auxval, fc, unitid, address, quantity, currFrameNumber);
+            }    
             //
-            if((fc == 1)&&(address == co_LED_RED_OFFSET))
-            {
-                mb.OledLine2("TT-FC:01(");
-                if(mb.Coil(co_LED_RED_OFFSET)==1)
-                { 
-                    char str[] = " LED RED=1     ";
-                    strcpy(ca_line3,str);  
-                } 
-                else 
-                { 
-                    char str[] = " LED RED=0     ";
-                    strcpy(ca_line3,str);  
-                } 
-                mb.OledUpdate();
-
-                MqttSend_ModbusFrame(b_MqttStatus, mb.Coil(co_LED_RED_OFFSET), fc, unitid, address, quantity, currFrameNumber);
-            }
 
             //+--------------------------------------------------------------------------------------------+                    
             //+--- Function Code READ: Discrete Inputs (FC=02)  -------------------------------------------+                    
             //+--------------------------------------------------------------------------------------------+ 
-            if((fc == 2)&&(address == di_RETN_BUTTON_OFFSET))
+            if (fc == 2) 
             {
-                mb.OledLine2("TT-FC:02(");
-                if(mb.Ists(di_RETN_BUTTON_OFFSET)==1)
-                {           
-                    char str[] = "BT. RETN=1   ";
-                    strcpy(ca_line3,str); 
-                } 
-                else
-                { 
-                    char str[] = "BT. RETN=0   ";
-                    strcpy(ca_line3,str); 
-                } 
-                mb.OledUpdate();
- 
-                MqttSend_ModbusFrame(b_MqttStatus, mb.Ists(di_RETN_BUTTON_OFFSET), fc, unitid, address, quantity, currFrameNumber);
-            }
-            //
-            if((fc == 2)&&(address == di_PUSH_BUTTON_OFFSET))
-            {
-                mb.OledLine2("TT-FC:02(");
-                if(mb.Ists(di_PUSH_BUTTON_OFFSET)==1)
-                {           
-                    char str[] = "BT. PUSH=1   ";
-                    strcpy(ca_line3,str); 
-                } 
-                else
-                { 
-                    char str[] = "BT. PUSH=0   ";
-                    strcpy(ca_line3,str); 
-                } 
-                mb.OledUpdate();
+                bool auxval;                
+                lbmb.OledLine2("TT-FC:01(");
+                auxval = lbmb.OledShowValueFc2(fc,address);            
 
-                MqttSend_ModbusFrame(b_MqttStatus, mb.Ists(di_PUSH_BUTTON_OFFSET), fc, unitid, address, quantity, currFrameNumber);
-            }
+                MqttSend_ModbusFrame(b_MqttStatus, auxval, fc, unitid, address, quantity, currFrameNumber);
+            }               
 
             //+--------------------------------------------------------------------------------------------+                    
             //+--- Function Code READ: Multiple Holding Registers (FC=03) ---------------------------------+                    
             //+--------------------------------------------------------------------------------------------+ 
-            if((fc == 3)&&(address == hr_RGB_R_OFFSET))
+            if (fc == 3) 
             {
-                mb.OledLine2("TT-FC:03(");
-                char str[] = "RGB R=";
-                strcpy(ca_line3,str);
-                char str1[8];
-                itoa(mb.Hreg(hr_RGB_R_OFFSET), str1, 10);
-                strcat(ca_line3,str1); 
-                strcat(ca_line3,"%");
-                mb.OledUpdate();
-        
-                MqttSend_ModbusFrame(b_MqttStatus, mb.Hreg(hr_RGB_R_OFFSET), fc, unitid, address, quantity, currFrameNumber);
-            }
-            //
-            if((fc == 3)&&(address == hr_RGB_G_OFFSET))
-            {
-                mb.OledLine2("TT-FC:03(");
-                char str[] = "RGB G=";
-                strcpy(ca_line3,str);
-                char str1[8];
-                itoa(mb.Hreg(hr_RGB_G_OFFSET), str1, 10);
-                strcat(ca_line3,str1); 
-                strcat(ca_line3,"%");
-                mb.OledUpdate();
+                uint16_t auxval;    
 
-                MqttSend_ModbusFrame(b_MqttStatus, mb.Hreg(hr_RGB_G_OFFSET), fc, unitid, address, quantity, currFrameNumber);
-            }
-            //
-            if((fc == 3)&&(address == hr_RGB_B_OFFSET))
-            {
-                mb.OledLine2("TT-FC:03(");
-                char str[] = "RGB B=";
-                strcpy(ca_line3,str);
-                char str1[8];
-                itoa(mb.Hreg(hr_RGB_B_OFFSET), str1, 10);
-                strcat(ca_line3,str1); 
-                strcat(ca_line3,"%");
-                mb.OledUpdate();
+                lbmb.OledLine2("TT-FC:03(");
+                auxval = lbmb.OledShowValueFc3(fc,address);            
 
-                MqttSend_ModbusFrame(b_MqttStatus, mb.Hreg(hr_RGB_B_OFFSET), fc, unitid, address, quantity, currFrameNumber);
-            }
-
+                MqttSend_ModbusFrame(b_MqttStatus, auxval, fc, unitid, address, quantity, currFrameNumber);
+            }               
 
             //+--------------------------------------------------------------------------------------------+                    
             //+--- Function Code READ: Input Registers (FC=04) --------------------------------------------+                    
             //+--------------------------------------------------------------------------------------------+ 
-            if((fc == 4)&&(address == ir_POT_LEFT_OFFSET))
+             if (fc == 4) 
             {
-                mb.OledLine2("TT-FC:04(");
-                char str[] = "PO. L=";
-                strcpy(ca_line3,str);
-                char str1[8];
-                itoa(mb.Ireg(ir_POT_LEFT_OFFSET), str1, 10);
-                strcat(ca_line3,str1); 
-                mb.OledUpdate();
+                uint16_t auxval;    
 
-                MqttSend_ModbusFrame(b_MqttStatus, mb.Ireg(ir_POT_LEFT_OFFSET), fc, unitid, address, quantity, currFrameNumber);
-            }
-            //
-            if((fc == 4)&&(address == ir_POT_RIGHT_OFFSET))
-            {
-                mb.OledLine2("TT-FC:04(");
-                char str[] = "PO. R=";
-                strcpy(ca_line3,str);
-                char str1[8];
-                itoa(mb.Ireg(ir_POT_RIGHT_OFFSET), str1, 10);
-                strcat(ca_line3,str1);
-                mb.OledUpdate();
+                lbmb.OledLine2("TT-FC:04(");
+                auxval = lbmb.OledShowValueFc4(fc,address);            
 
-                MqttSend_ModbusFrame(b_MqttStatus, mb.Ireg(ir_POT_RIGHT_OFFSET), fc, unitid, address, quantity, currFrameNumber);
-            }
-
-
-
-
+                MqttSend_ModbusFrame(b_MqttStatus, auxval, fc, unitid, address, quantity, currFrameNumber);
+            }            
+ 
             //+----------------------------+                    
             //+--- Function Code WRITE: ---+                    
             //+----------------------------+ 
             //+--------------------------------------------------------------------------------------------+                    
             //+--- Function Code WRITE: Coils (FC=05) -----------------------------------------------------+                    
-            //+--------------------------------------------------------------------------------------------+ 
-            if((fc == 5)&&(address == co_LED_GREEN_OFFSET))
+            //+--------------------------------------------------------------------------------------------+
+            if (fc == 5) 
             {
-                mb.Coil(co_LED_GREEN_OFFSET, value);
-                //
-                mb.OledLine2("TT-FC:05(");
-                if(mb.Coil(co_LED_GREEN_OFFSET)==1)
-                { 
-                    char str[] = " LED GRN=1     ";
-                    strcpy(ca_line3,str);  
-                } 
-                else 
-                { 
-                    char str[] = " LED GRN=0     ";
-                    strcpy(ca_line3,str);  
-                } 
-                mb.OledUpdate();
-                //
-                MqttSend_ModbusFrame(b_MqttStatus, mb.Coil(co_LED_GREEN_OFFSET), fc, unitid, address, quantity, currFrameNumber);
-            }
-            //
-            if((fc == 5)&&(address == co_LED_RED_OFFSET))
-            {
-                mb.Coil(co_LED_RED_OFFSET, value);
-                //
-                mb.OledLine2("TT-FC:05(");
-                if(mb.Coil(co_LED_RED_OFFSET)==1)
-                { 
-                    char str[] = " LED RED=1     ";
-                    strcpy(ca_line3,str);  
-                } 
-                else 
-                { 
-                    char str[] = " LED RED=0     ";
-                    strcpy(ca_line3,str);  
-                } 
-                mb.OledUpdate();
-                //
-                MqttSend_ModbusFrame(b_MqttStatus, mb.Coil(co_LED_RED_OFFSET), fc, unitid, address, quantity, currFrameNumber);
-            }
+                uint16_t auxval;    
 
+                switch (address){
+                   case  co_LED_GREEN_OFFSET:
+                       mb1.Coil(co_LED_GREEN_OFFSET, value);
+                       break;
+                   case  co_LED_RED_OFFSET:
+                       mb1.Coil(co_LED_RED_OFFSET, value);
+                       break;
+                   default: 
+                       Serial.println("Error: Fction 5 - Address is out of range!!!!");
+                       break;
+                }
+
+                lbmb.OledLine2("TT-FC:05(");
+                auxval = lbmb.OledShowValueFc5(fc,address);            
+
+                MqttSend_ModbusFrame(b_MqttStatus, auxval, fc, unitid, address, quantity, currFrameNumber);
+            } 
           
             //+--------------------------------------------------------------------------------------------+                    
             //+--- Function Code WRITE: Single Holding Register (FC=06) -----------------------------------+                    
             //+--------------------------------------------------------------------------------------------+ 
-            if((fc == 6)&&(address == hr_RGB_R_OFFSET))
+            if (fc == 6) 
             {
-                mb.Hreg(hr_RGB_R_OFFSET, value);
-                //
-                mb.OledLine2("TT-FC:06(");
-                char str[] = "RGB R=";
-                strcpy(ca_line3,str);
-                char str1[8];
-                itoa(mb.Hreg(hr_RGB_R_OFFSET), str1, 10);
-                strcat(ca_line3,str1); 
-                strcat(ca_line3,"%");
-                mb.OledUpdate();
-                //
-                MqttSend_ModbusFrame(b_MqttStatus, mb.Hreg(hr_RGB_R_OFFSET), fc, unitid, address, quantity, currFrameNumber);
-            }
-            //
-            if((fc == 6)&&(address == hr_RGB_G_OFFSET))
-            {
-                mb.Hreg(hr_RGB_G_OFFSET, value);
-                //
-                mb.OledLine2("TT-FC:06(");
-                char str[] = "RGB G=";
-                strcpy(ca_line3,str);
-                char str1[8];
-                itoa(mb.Hreg(hr_RGB_G_OFFSET), str1, 10);
-                strcat(ca_line3,str1); 
-                strcat(ca_line3,"%");
-                mb.OledUpdate();
-                //
-                MqttSend_ModbusFrame(b_MqttStatus, mb.Hreg(hr_RGB_G_OFFSET), fc, unitid, address, quantity, currFrameNumber);
-            }
-            //
-            if((fc == 6)&&(address == hr_RGB_B_OFFSET))
-            {
-                mb.Hreg(hr_RGB_B_OFFSET, value);
-                //
-                mb.OledLine2("TT-FC:06(");
-                char str[] = "RGB B=";
-                strcpy(ca_line3,str);
-                char str1[8];
-                itoa(mb.Hreg(hr_RGB_B_OFFSET), str1, 10);
-                strcat(ca_line3,str1); 
-                strcat(ca_line3,"%");
-                mb.OledUpdate();
-                //
-                MqttSend_ModbusFrame(b_MqttStatus, mb.Hreg(hr_RGB_B_OFFSET), fc, unitid, address, quantity, currFrameNumber);
-            }
+                uint16_t auxval;    
+
+                switch (address){
+                   case  hr_RGB_R_OFFSET:
+                       mb1.Hreg(hr_RGB_R_OFFSET, value);
+                       break;
+                   case  hr_RGB_G_OFFSET:
+                       mb1.Hreg(hr_RGB_G_OFFSET, value);
+                       break;
+                   case  hr_RGB_B_OFFSET:
+                       mb1.Hreg(hr_RGB_B_OFFSET, value);
+                       break;
+                    default: 
+                       Serial.println("Error: Fction 6 - Address is out of range!!!!");
+                       break;
+                }
+
+                lbmb.OledLine2("TT-FC:06(");
+                auxval = lbmb.OledShowValueFc6(fc,address);            
+
+                MqttSend_ModbusFrame(b_MqttStatus, auxval, fc, unitid, address, quantity, currFrameNumber);
+            } 
+ 
+
       #endif
 
         #ifdef Enable_Display_OLED
-            mb.displayInfo_MqttModbus(fc, address, quantity);
+        if (mb.displayInfo_MqttModbus(fc, address, quantity)) 
+            Serial.println("Error: displayInfo_MqttModbus - Modbus Function does not exist!!!"); 
         #endif
         
         //SerialOTA.println("Veio do client!"); //+-- DEBUG - Putty PORT 23
@@ -469,17 +323,17 @@ void TXT_Analisys(uint8_t *charArr, unsigned int arrLength)
     if (((char)charArr[0] == 'O')&&((char)charArr[1] == 'N')) 
     {
         //digitalWrite(def_pin_LED_GREEN, HIGH);   // Turn the ci_led ON
-        mb.Coil(0,1);  // Turn the MOTOR ON
-        mb.OledLine2("TT->TXT(");
-        mb.OledLine3("MOTOR ON ");
+        mb1.Coil(0,1);  // Turn the MOTOR ON
+        lbmb.OledLine2("TT->TXT(");
+        lbmb.OledLine3("MOTOR ON ");
     } 
     // Switch  MOTOR OFF -> off
     if (((char)charArr[0] == 'O')&&((char)charArr[1] == 'F')&&((char)charArr[2] == 'F'))
     {
         //digitalWrite(def_pin_LED_GREEN, LOW);  // Turn the ci_led OFF
-        mb.Coil(0,0);  // Turn the MOTOR OFF
-        mb.OledLine2("TT->TXT(");
-        mb.OledLine3("MOTOR OFF ");
+        mb1.Coil(0,0);  // Turn the MOTOR OFF
+        lbmb.OledLine2("TT->TXT(");
+        lbmb.OledLine3("MOTOR OFF ");
     }
 
     //+--------------------------------+
@@ -489,17 +343,17 @@ void TXT_Analisys(uint8_t *charArr, unsigned int arrLength)
     if (((char)charArr[0] == 'L')&&((char)charArr[1] == 'I')&&((char)charArr[2] == 'G')&&((char)charArr[3] == 'A')&&((char)charArr[4] == 'R')) 
     {
         //digitalWrite(def_pin_LED_GREEN, HIGH);   // Turn the ci_led ON
-        mb.Coil(0,1);  // Turn the MOTOR ON
-        mb.OledLine2("TT->TXT(");
-        mb.OledLine3("MOTOR ON ");
+        mb1.Coil(0,1);  // Turn the MOTOR ON
+        lbmb.OledLine2("TT->TXT(");
+        lbmb.OledLine3("MOTOR ON ");
     } 
     // Switch  MOTOR OFF -> DESLIGAR
     if (((char)charArr[0] == 'D')&&((char)charArr[1] == 'E')&&((char)charArr[2] == 'S')&&((char)charArr[3] == 'L')&&((char)charArr[4] == 'I')&&((char)charArr[5] == 'G')&&((char)charArr[6] == 'A')&&((char)charArr[7] == 'R')) 
     {
         //digitalWrite(def_pin_LED_GREEN, LOW);  // Turn the ci_led OFF
-        mb.Coil(0,0);  // Turn the MOTOR OFF
-        mb.OledLine2("TT->TXT(");
-        mb.OledLine3("MOTOR OFF ");
+        mb1.Coil(0,0);  // Turn the MOTOR OFF
+        lbmb.OledLine2("TT->TXT(");
+        lbmb.OledLine3("MOTOR OFF ");
     }
 
     //+---------------------------------------+
@@ -511,16 +365,16 @@ void TXT_Analisys(uint8_t *charArr, unsigned int arrLength)
         (((char)charArr[0] == 'T')&&((char)charArr[1] == 'E')&&((char)charArr[2] == 'M')&&((char)charArr[3] == 'P')&&((char)charArr[4] == 'E')&&((char)charArr[5] == 'R')&&((char)charArr[6] == 'A')&&((char)charArr[7] == 'T')&&((char)charArr[8] == 'U')&&((char)charArr[9] == 'R')&&((char)charArr[10] == 'A'))||
         (((char)charArr[0] == 'T')&&((char)charArr[1] == 'E')&&((char)charArr[2] == 'M')&&((char)charArr[3] == 'P')&&((char)charArr[4] == 'T')&&((char)charArr[5] == 'U')&&((char)charArr[6] == 'R')&&((char)charArr[7] == 'E'))) 
     {
-        mb.OledLine2("TT->TXT(");
+        lbmb.OledLine2("TT->TXT(");
         //
         char str[] = "  TMP=";
         strcpy(ca_OLED_line3,str);
         char str1[8];
-        itoa(mb.Ireg(ir_TEMPTURE_OFFSET), str1, 10);
+        itoa(mb1.Ireg(ir_TEMPTURE_OFFSET), str1, 10);
         strcat(ca_OLED_line3,str1); 
         strcat(ca_OLED_line3,"C");
-        mb.OledLine3(ca_OLED_line3);
-        MqttSend_SensorValue(b_MqttStatus, "TMP", mb.Ireg(ir_TEMPTURE_OFFSET));
+        lbmb.OledLine3(ca_OLED_line3);
+        MqttSend_SensorValue(b_MqttStatus, "TMP", mb1.Ireg(ir_TEMPTURE_OFFSET));
     } 
 
     // GET Umidade -> umidade, ur, umidity
@@ -528,16 +382,16 @@ void TXT_Analisys(uint8_t *charArr, unsigned int arrLength)
         (((char)charArr[0] == 'U')&&((char)charArr[1] == 'R'))||
         (((char)charArr[0] == 'H')&&((char)charArr[1] == 'U')&&((char)charArr[2] == 'M')&&((char)charArr[3] == 'I')&&((char)charArr[4] == 'D')&&((char)charArr[5] == 'I')&&((char)charArr[6] == 'T')&&((char)charArr[7] == 'Y'))) 
     {
-        mb.OledLine2("TT->TXT(");
+        lbmb.OledLine2("TT->TXT(");
         //
         char str[] = "  UR=";
         strcpy(ca_OLED_line3,str);
         char str1[8];
-        itoa(mb.Ireg(ir_HUMIDITY_OFFSET), str1, 10);
+        itoa(mb1.Ireg(ir_HUMIDITY_OFFSET), str1, 10);
         strcat(ca_OLED_line3,str1); 
         strcat(ca_OLED_line3,"%");
-        mb.OledLine3(ca_OLED_line3);
-        MqttSend_SensorValue(b_MqttStatus, "UR", mb.Ireg(ir_HUMIDITY_OFFSET));
+        lbmb.OledLine3(ca_OLED_line3);
+        MqttSend_SensorValue(b_MqttStatus, "UR", mb1.Ireg(ir_HUMIDITY_OFFSET));
     }
 
     
@@ -545,17 +399,17 @@ void TXT_Analisys(uint8_t *charArr, unsigned int arrLength)
     // Switch LED RED ON -> gon
     if (((char)charArr[0] == 'r')&&((char)charArr[1] == 'o')&&((char)charArr[2] == 'n')) 
     {
-        mb.Coil(1,1);  // Turn the LED GREEN ON
-        mb.OledLine2("TT->TXT(");
-        mb.OledLine3("LED RED ON ");
+        mb1.Coil(1,1);  // Turn the LED GREEN ON
+        lbmb.OledLine2("TT->TXT(");
+        lbmb.OledLine3("LED RED ON ");
     } 
     // Switch LED RED OFF -> goff
     if (((char)charArr[0] == 'r')&&((char)charArr[1] == 'o')&&((char)charArr[2] == 'f')&&((char)charArr[3] == 'f'))
     {
-        mb.Coil(1,0);  // Turn the LED GREEN OFF
-        mb.OledLine2("TT->TXT(");
-        mb.OledLine3("LED RED OFF ");
-        //mb.OledLine3("             ");
+        mb1.Coil(1,0);  // Turn the LED GREEN OFF
+        lbmb.OledLine2("TT->TXT(");
+        lbmb.OledLine3("LED RED OFF ");
+        //lbmb.OledLine3("             ");
     }
 
 
@@ -689,18 +543,18 @@ bool ConnectMQTT(bool reconnect)
             //
             if(reconnect == false)
             {
-              mb.OledLine1("             ");
-              mb.OledLine2("  MQTT OK    ");
-              mb.OledLine3("             ");
-              mb.OledUpdate();
+              lbmb.OledLine1("             ");
+              lbmb.OledLine2("  MQTT OK    ");
+              lbmb.OledLine3("             ");
+              lbmb.OledUpdate();
               delay(3000);
             }
             else
             {
               //mb.OledLine1("             ");
-              mb.OledLine2(" RECONNECT   ");
-              mb.OledLine3("    MQTT     ");
-              mb.OledUpdate();
+              lbmb.OledLine2(" RECONNECT   ");
+              lbmb.OledLine3("    MQTT     ");
+              lbmb.OledUpdate();
               b_mqtt_reconnected_message=true;
               i_mqtt_reconnected_display_seconds=0;
             }
@@ -709,8 +563,8 @@ bool ConnectMQTT(bool reconnect)
         else 
         {
             //
-            mb.OledLine1("              ");
-            mb.OledLine2("   MQTT       "); 
+            lbmb.OledLine1("              ");
+            lbmb.OledLine2("   MQTT       "); 
             //
             char line3[18]="(";
             char str1[8];
@@ -729,8 +583,8 @@ bool ConnectMQTT(bool reconnect)
             }
             
             //
-            mb.OledLine3(line3);
-            mb.OledUpdate();
+            lbmb.OledLine3(line3);
+            lbmb.OledUpdate();
             //
             Serial.println("MQTT - Falha ao conectar!");
             Serial.printf("Estado do Cliente: %d\n",client.state());
@@ -761,10 +615,10 @@ bool ConnectMQTT(bool reconnect)
 
     if(by_nTries>=5)
     {
-      mb.OledLine1("             ");
-      mb.OledLine2("   MQTT     ");
-      mb.OledLine3(" FAILED!!!   ");
-      mb.OledUpdate();
+      lbmb.OledLine1("             ");
+      lbmb.OledLine2("   MQTT     ");
+      lbmb.OledLine3(" FAILED!!!   ");
+      lbmb.OledUpdate();
       delay(6000);
     }
 

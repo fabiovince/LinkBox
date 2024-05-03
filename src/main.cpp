@@ -3,7 +3,14 @@
 //    Industrial Informatics II, Home Automation and Industrial Networks I of                   |
 //    Automation and Control Engineering Course - Federal University of Uberlândia (FEELT/UFU)  |
 //    by Prof. Fábio Vincenzi and Prof. Renato Carrijo                                          |
-//                                                                 Updated: 2023/10/28          |         
+//                                                                 Updated: 2024/05/03          |         
+//                                                                                              |
+// # Updates                                                                                    |
+// may/02/24 : Renato F.                                                                        |
+// Now the Modbus TCP connection is more stable. Limit of 8 Clients Modbus TCP.                 |
+// Include the emelianov/modbus-esp8266 code to Modbus TCP handling, because the modbus         |
+// connections were closed every time.                                                          |
+// New Function: Disable the OLED scan using the Modbus Address 9000.                           |
 //+---------------------------------------------------------------------------------------------+
 
 #include <WiFi.h>
@@ -14,17 +21,17 @@
 #include <Arduino.h>
 #include <ArduinoOTA.h>
 #include "global_vars.h"
+#include <ModbusIP_ESP8266.h>
 
+#define OTA_ENABLED 1
 
 //+--- Alexa ---+
 fauxmoESP fauxmo;
-
 
 //+--- OLED ---+
 #include <Wire.h>
 #include <Adafruit_GFX.h>
 #include <Adafruit_SSD1306.h>
-
 
 //+--- Sensor AHT10 ---+
 #ifdef Enable_AHT10
@@ -49,16 +56,16 @@ String s_client_id="";
 //#define MQTT_MAX_PACKET_SIZE 2048
 //#include "SENSOR.h"
 
-//+--- ModbusIP object ---+
-LbModbusIP mb;
+//+--- Modbus objects ---+
+LbBoard lbmb;
+ModbusIP mb1;
 
 /***************  MODBUS ********************************/
-// OBS: A biblioteca Modbus já soma os offsets 10001, 30001 e 400001 para os diferentes tipos de registradores
+// OBS: A biblioteca Modbus utiliza o padrao modbus novo (modbus.org) 
 // desse modo, cada tipo de registrador (Coil, Discrete Inputs, Input Register e Holding Register)
 // podem ser acrescentados a partir de 0 (zero) para o ScadaBR
-//
-//  https://github.com/andresarmento/modbus-arduino/blob/master/README.md
-//The offsets for registers are 0-based. So be careful when setting your supervisory system or your testing software. For example, in ScadaBR (http://www.scadabr.com.br) offsets are 0-based, then, a register configured as 100 in the library is set to 100 in ScadaBR. On the other hand, in the CAS Modbus Scanner (http://www.chipkin.com/products/software/modbus-software/cas-modbus-scanner/) offsets are 1-based, so a register configured as 100 in library should be 101 in this software. 
+// Todo a base modus é feita pelo projeto "Modbus Library for Arduino" de Andre Sarmento https://github.com/andresarmento/modbus-esp8266 
+// The offsets for registers are 0-based. So be careful when setting your supervisory system or your testing software. For example, in ScadaBR (http://www.scadabr.com.br) offsets are 0-based, then, a register configured as 100 in the library is set to 100 in ScadaBR. On the other hand, in the CAS Modbus Scanner (http://www.chipkin.com/products/software/modbus-software/cas-modbus-scanner/) offsets are 1-based, so a register configured as 100 in library should be 101 in this software. 
 //
 //+--- Registrador de Offsets ---+
 //Register Type   	Register Number  	Register Size 	Permission
@@ -86,13 +93,20 @@ LbModbusIP mb;
 //Discrete Inputs  |   Digital Input	 | Read Only	  | addIsts(), Ists()
 //Input Register	 |   Analog Input	   | Read Only	  | addIreg(), Ireg()
 //------------------------------------------------------------------------+
+//
+// New Features: 24/may/05 
+// In the Modbus Protocol, to disable scan display of variables - write in the Coil address 9000 the value 1. This feature is to increase the response from the board to Modbus Commands. 
+
+
 
 uint8_t u_thisDeviceId=0; //Client/Slave Device Number (usado na comunicação MQTT para diferenciar dispositivos)
 
 
  /***************  Telnet ********************************/
 WiFiServer TelnetServer(23); // Telnet Server Declaration port 23
+#if 1
 WiFiClient SerialOTA;        // Telnet Client Declaration 
+#endif
 bool haveClient = false;     //client detection flag
 //+------------------------------------------------------+/
 
@@ -126,11 +140,11 @@ bool b_MenuHold=false; //Keeps the menu activated until a choice is made or dete
 bool b_MenuFirstCall=false;
 bool b_GoToLoop=false;
 char by_menu_option=0;
+
 unsigned int by_stored_protocol_option=0;
 unsigned int ui_menu_protocol_option=0;
 unsigned int ui_ms_button_pressed=0;
 unsigned int ui_ms_button_released=0;
-
 
 //+----------------------------+
 //+--- MQTT -------------------+
@@ -147,7 +161,7 @@ int i_mqtt_reconnected_display_seconds=0;
 //+--------- OLED -------------+
 //+----------------------------+
 char s_oled_header[40];
-
+char s_oled_hdrcmp[15];
 
 String s_mac=""; //MAC Address
 
@@ -179,7 +193,7 @@ void setup()
     //+----------------------------------------------------------------------------------+
 
     /*************** OLED *********************/
-    mb.OledInitialize(); // initialize OLED display with I2C address 0x3C
+    lbmb.OledInitialize(); // initialize OLED display with I2C address 0x3C
 
 
     /*************** initialize EEPROM with predefined size *********************/
@@ -194,7 +208,8 @@ void setup()
     /*************** WiFi CONNECT *********************/
     WiFi_CONNECT();
 
-  
+ #if OTA_ENABLED   
+ 
     ArduinoOTA
     .onStart([]() 
     {
@@ -240,56 +255,12 @@ void setup()
     /*************** Telnet  *********************/
     TelnetServer.begin();
     TelnetServer.setNoDelay(true);
+#endif
 
     /*************** MODBUS  *********************/
-    //+-- Set_XXXXX(int device, int offset) to Modbus.h lib
-    mb.Set_CoilsOffset(0, co_LED_GREEN_OFFSET);
-    mb.Set_CoilsOffset(1, co_LED_RED_OFFSET);
-    //
-    mb.Set_DigitalInputOffset(0, di_RETN_BUTTON_OFFSET);
-    mb.Set_DigitalInputOffset(1, di_PUSH_BUTTON_OFFSET);
-    //
-    #ifdef Enable_AHT10
-        mb.Set_InputRegsOffset(0, ir_TEMPTURE_OFFSET);
-        mb.Set_InputRegsOffset(1, ir_HUMIDITY_OFFSET);
-    #else
-        mb.Set_InputRegsOffset(0, ir_POT_LEFT_OFFSET);
-        mb.Set_InputRegsOffset(1, ir_POT_RIGHT_OFFSET);
-    #endif
-    //
-    mb.Set_HoldingRegsOffset(0, hr_RGB_R_OFFSET);
-    mb.Set_HoldingRegsOffset(1, hr_RGB_G_OFFSET);
-    mb.Set_HoldingRegsOffset(2, hr_RGB_B_OFFSET);
-
-    /*************** MODBUS  *********************/
-    //+-- Add binary Modbus registers (bit=COIL) ---+
-    //+--- Coils ---+
-    mb.addCoil(co_LED_GREEN_OFFSET);
-    mb.Coil(co_LED_GREEN_OFFSET, false); 
-    mb.addCoil(co_LED_RED_OFFSET);
-    mb.Coil(co_LED_RED_OFFSET, false);  
-
-    //+--- Digital Inputs ---+
-    mb.addIsts(di_RETN_BUTTON_OFFSET);
-    mb.addIsts(di_PUSH_BUTTON_OFFSET);
-  
-    #ifdef Enable_AHT10
-        //+-- Adds analog Modbus registers (2 bytes)
-        //+--- Imput Registers ---+
-        mb.addIreg(ir_TEMPTURE_OFFSET);
-        mb.addIreg(ir_HUMIDITY_OFFSET);
-    #else
-        //+-- Adds analog Modbus registers (2 bytes)
-        //+--- Imput Registers ---+
-        mb.addIreg(ir_POT_LEFT_OFFSET);
-        mb.addIreg(ir_POT_RIGHT_OFFSET);
-    #endif
-
-    //+--- Holding Registers ---+
-    mb.addHreg(hr_RGB_R_OFFSET);
-    mb.addHreg(hr_RGB_G_OFFSET);
-    mb.addHreg(hr_RGB_B_OFFSET);
-
+    //+-- Initiate the Modbus Points - Because MQTT use the Modbus Structure, needs to became available to the others 
+    //if ((by_stored_protocol_option==MODBUS_PROTOCOL_LinkBox)||(by_stored_protocol_option==MODBUS_PROTOCOL_1C205))
+       lbmb.ModbusInit();
     /*************** PWM  config *********************/
     // PWM Config
     ledcSetup(def_rgb_red_channel, def_pwm_frequency, def_pwm_resolution);
@@ -319,10 +290,10 @@ void setup()
     //
     if(b_GoToLoop==false)
     {
-        mb.OledLine1(s_oled_header);
-        mb.OledLine2("             ");
-        mb.OledLine3("             ");
-        mb.OledUpdate();
+        lbmb.OledLine1(s_oled_header);
+        lbmb.OledLine2("             ");
+        lbmb.OledLine3("             ");
+        lbmb.OledUpdate();
 
 
         if(by_stored_protocol_option==ALEXA_PROTOCOL)
@@ -373,8 +344,10 @@ void loop()
     //+--- MODBUS ------------------------------------+
     if((by_stored_protocol_option==MODBUS_PROTOCOL_LinkBox)||(by_stored_protocol_option==MODBUS_PROTOCOL_1C205))
     {
-        mb.task();
+        mb1.task();
     }
+
+    lbmb.Task();
 
     //+--- MQTT CONNECT ------------------------------+
     if((by_stored_protocol_option==MQTT_PROTOCOL)&&(client.state()!=0)&&(b_GoToLoop==false))
@@ -390,62 +363,6 @@ void loop()
         fauxmo.handle();
     }
  
-
-    //+--- Register Type   	Register Number  	Register Size 	Permission
-    //+---    Coil				      1-9999				   1 bit			     R/W     ---+
-    //+-- Copies the Modbus register value (co_LED_GREEN_OFFSET) to the GPIO16=RX2 pin (LED_GREEN)
-    #ifdef Enable_ArduinoRelay  
-        digitalWrite(def_pin_LED_GREEN, !(mb.Coil(co_LED_GREEN_OFFSET))); // Inverte a lógica de acionamento porque o contato NO do relé Arduino fecha quando o sinal na entrada é 0(Zero))
-    #else
-        digitalWrite(def_pin_LED_GREEN, (mb.Coil(co_LED_GREEN_OFFSET))); 
-    #endif
-    //
-    //
-    // 
-
-    //+-- Copies the value from the Modbus register (co_LED_RED_OFFSET) to the GPIO4=D4 pin (LED_RED)
-    digitalWrite(def_pin_LED_RED, mb.Coil(co_LED_RED_OFFSET));
-    //
-    //
-    //
-    //+--- Register Type   	Register Number  	Register Size 	Permission
-    //+-- Discrete Inputs     10001-19999		     1 bit		       R/W     ---+
-    mb.Ists(di_RETN_BUTTON_OFFSET, digitalRead(def_pin_RETN_BUTTON));
-    mb.Ists(di_PUSH_BUTTON_OFFSET, digitalRead(def_pin_PUSH_BUTTON));
-    //
-
-    //
-    //
-    //+--- Register Type   	Register Number  	Register Size 	Permission
-    //+- Holding Register	   40001-49999			   16 bit          R     ---+
-    //+-- Configures the PWM value to activate the red LED of the RGB LED 
-
-    #ifdef Enable_COMMON_ANODE_RGB
-        //+---
-        //+-- LEDs are common anode, so when the cyclic ratio is 0 the LED emits maximum brightness
-        //+---
-        //+-- Configures the PWM value to activate the red LED of the RGB LED ---+
-        ledcWrite(def_rgb_red_channel, (1023-((mb.Hreg(hr_RGB_R_OFFSET)*1023)/100)));
-
-        //+-- Configures the PWM value to activate the green LED of the RGB LED ---+
-        ledcWrite(def_rgb_green_channel, (1023-((mb.Hreg(hr_RGB_G_OFFSET)*1023)/100)));
-
-        //+-- Configures the PWM value to activate the blue LED of the RGB LED ---+
-        ledcWrite(def_rgb_blue_channel, (1023-((mb.Hreg(hr_RGB_B_OFFSET)*1023)/100)));
-    #else
-        //+---
-        //+--  //+-- LEDs are common cathode, so when the cyclic ratio is 100 the LED emits maximum brightness
-        //+---
-        //+--- Configures the PWM value to activate the red LED of the RGB LED ---+
-        ledcWrite(def_rgb_red_channel, ((mb.Hreg(hr_RGB_R_OFFSET)*1023)/100));
-
-        //+--- Configures the PWM value to activate the green LED of the RGB LED ---+
-        ledcWrite(def_rgb_green_channel, ((mb.Hreg(hr_RGB_G_OFFSET)*1023)/100));
-
-        //+--- Configures the PWM value to activate the blue LED of the RGB LED ---+
-        ledcWrite(def_rgb_blue_channel, ((mb.Hreg(hr_RGB_B_OFFSET)*1023)/100));
-
-    #endif
 
     /*
     //+--- loop to blink without delay ---+
@@ -493,18 +410,18 @@ void loop()
                     sensors_event_t humidity, temp;
                     aht10.getEvent(&humidity, &temp);// populate temp and humidity objects with fresh data
                     ahtValue = temp.temperature;   //read 6-bytes via I2C, takes 80 milliseconds
-                    mb.Ireg(ir_TEMPTURE_OFFSET, ahtValue);  //+--- reads from the AHT10 sensor and copy the value to the Modbus ir_TEMPTURE_OFFSET offset register
+                    mb1.Ireg(ir_TEMPTURE_OFFSET, ahtValue);  //+--- reads from the AHT10 sensor and copy the value to the Modbus ir_TEMPTURE_OFFSET offset register
                     //Serial.printf("\nTEMPTURE=%d",ahtValue);
                     ahtValue = humidity.relative_humidity; //read 6-bytes from I2C, takes 80 milliseconds
-                    mb.Ireg(ir_HUMIDITY_OFFSET, ahtValue); //+--- reads from AHT10 sensor and copy the value to the Modbus ir_HUMIDITY_OFFSET offset register
+                    mb1.Ireg(ir_HUMIDITY_OFFSET, ahtValue); //+--- reads from AHT10 sensor and copy the value to the Modbus ir_HUMIDITY_OFFSET offset register
                     //Serial.printf("\nHUMIDITY=%d",ahtValue);
                 }
             #else
                 //+--- MODBUS Updates the potentiometer Input Registers ---+
                 //+--- Register Type   	Register Number  	Register Size 	Permission            +
                 //+--- Input Register	  30001-39999		   16 bit	        R                       +
-                mb.Ireg(ir_POT_LEFT_OFFSET,  analogRead(def_pin_POT_LEFT));  //+--- Copies the value from ADC1_3 (GPIO39) to the Modbus register ir_POT_LEFT_OFFSET
-                mb.Ireg(ir_POT_RIGHT_OFFSET, analogRead(def_pin_POT_RIGHT)); //+--- Copies the value from ADC1_6 (GPIO34) to the Modbus register ir_POT_RIGHT_OFFSET 
+                mb1.Ireg(ir_POT_LEFT_OFFSET,  analogRead(def_pin_POT_LEFT));  //+--- Copies the value from ADC1_3 (GPIO39) to the Modbus register ir_POT_LEFT_OFFSET
+                mb1.Ireg(ir_POT_RIGHT_OFFSET, analogRead(def_pin_POT_RIGHT)); //+--- Copies the value from ADC1_6 (GPIO34) to the Modbus register ir_POT_RIGHT_OFFSET 
                 //
             #endif
         }
@@ -513,26 +430,34 @@ void loop()
 
 
     //+--- One Second Timming ---+
-    if(millis()<ul_OneSecond_PrevTime){ ul_OneSecond_PrevTime=millis(); } //millis() will overflow (go back to zero), after approximately 50 days. So, when it happens ul_OneSecond_PrevTime must be reseted
-    if(millis()-ul_OneSecond_PrevTime>=1000)
-    {
-        ul_OneSecond_PrevTime=millis();
-        if(b_mqtt_reconnected_message==true)
+    if (!lbmb.isOledDisable()){
+        if(millis()<ul_OneSecond_PrevTime){ ul_OneSecond_PrevTime=millis(); } //millis() will overflow (go back to zero), after approximately 50 days. So, when it happens ul_OneSecond_PrevTime must be reseted
+        if(millis()-ul_OneSecond_PrevTime>=1000)
         {
-            i_mqtt_reconnected_display_seconds++;
-            if(i_mqtt_reconnected_display_seconds > 6)
+            ul_OneSecond_PrevTime=millis();
+            if(b_mqtt_reconnected_message==true)
             {
-              mb.OledLine2("             ");
-              mb.OledLine3("             ");
-              mb.OledUpdate();
-              b_mqtt_reconnected_message=false;
+                i_mqtt_reconnected_display_seconds++;
+                if(i_mqtt_reconnected_display_seconds > 6)
+                {
+                    lbmb.OledLine2("             ");
+                    lbmb.OledLine3("             ");
+                    lbmb.OledUpdate();
+                    b_mqtt_reconnected_message=false;
+                }
             }
         }
+
     }
 
     ButtomMenuCheck();
     
-    if(b_GoToMenu==false){ mb.OledUpdate(); }
+    if (!lbmb.isOledDisable()){
+       if(b_GoToMenu==false) { 
+        lbmb.OledUpdate(); 
+       }
+    }
+
     if(b_GoToMenu==true){ Protocol_Menu(); }
 
 } // FIM - void loop()

@@ -10,24 +10,26 @@
 
         //+----------------------------------------------------------------------------+
         //+--- If Enable_COMMON_ANODE_RGB is not defined, common  cathode is selected:
-        #define Enable_COMMON_ANODE_RGB
+        // #define Enable_COMMON_ANODE_RGB
         //+----------------------------------------------------------------------------+
 
 
         /* types for global vars */
         //+--- MODBUS -------+
-        #include <LbModbus.h>  //Adicionar essa lib: Rascunho->Incluir Biblioteca->Adicionar Biblioteca.ZIP...  Modbus.zip
-        #include <LbModbusIP_ESP32.h>  //Adicionar essa lib: Rascunho->Incluir Biblioteca->Adicionar Biblioteca.ZIP...  ModbusIP_ESP32-master.zip
+        #include <LbBoard.h>  //Adicionar essa lib: Rascunho->Incluir Biblioteca->Adicionar Biblioteca.ZIP...  Modbus.zip
+        #include <ModbusIP_ESP8266.h>
 
         //+--- Global ModbusIP object ---+
-        extern LbModbusIP mb;
+       extern  LbBoard lbmb;
+       extern  ModbusIP mb1;
 
         extern char ca_line3[18]; //OLED display line 3
 
         //+--- Register Type   	Register Number  	Register Size 	Permission
         //+---    Coil				      1-9999				   1 bit			     R/W     ---+
-        #define co_LED_GREEN_OFFSET  0  // Offset do Coil Modbus para acionar co_led GREEN (bit=COIL) 
-        #define co_LED_RED_OFFSET    1  // Offset do Coil Modbus para acionar co_led RED (bit=COIL)
+        #define co_LED_GREEN_OFFSET         0     // Offset do Coil Modbus para acionar co_led GREEN (bit=COIL) 
+        #define co_LED_RED_OFFSET           1     // Offset do Coil Modbus para acionar co_led RED (bit=COIL)
+        #define co_DISABLE_OLED_OFFSET      9000     // Offset do Coil Modbus to disable OLED (1=DISABLE 0=ENABLE) //teste rff
 
         //+--- Register Type   	Register Number  	Register Size 	Permission
         //+-- Discrete Inputs     10001-19999			   1 bit			     R/W     ---+

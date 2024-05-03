@@ -23,8 +23,8 @@
             Serial.println(F("AHT1x not connected or fail to load calibration coefficient")); //(F()) save string to flash & keeps dynamic memory free
             SerialOTA.println("AHT1x not connected or fail to load calibration coefficient");
             
-            mb.OledLine1("              ");
-            mb.OledLine2("   AHT10      "); 
+            lbmb.OledLine1("              ");
+            lbmb.OledLine2("   AHT10      "); 
             //
             char line3[18]="(";
             char str1[8];
@@ -43,8 +43,8 @@
             }
 
             //
-            mb.OledLine3(line3);
-            mb.OledUpdate();
+            lbmb.OledLine3(line3);
+            lbmb.OledUpdate();
             //
             delay(3000);
             by_nTries++;
@@ -52,10 +52,10 @@
 
         if(by_nTries>=5)
         {
-          mb.OledLine1("             ");
-          mb.OledLine2("   AHT10     ");
-          mb.OledLine3(" FAILED!!!   ");
-          mb.OledUpdate();
+          lbmb.OledLine1("             ");
+          lbmb.OledLine2("   AHT10     ");
+          lbmb.OledLine3(" FAILED!!!   ");
+          lbmb.OledUpdate();
 
           b_AHT10_INIT_OK = false;
 
@@ -63,10 +63,10 @@
         }
         else
         {
-          mb.OledLine1("             ");
-          mb.OledLine2(" AHT10 OK    ");
-          mb.OledLine3("             ");
-          mb.OledUpdate();
+          lbmb.OledLine1("             ");
+          lbmb.OledLine2(" AHT10 OK    ");
+          lbmb.OledLine3("             ");
+          lbmb.OledUpdate();
 
           b_AHT10_INIT_OK = true;
 

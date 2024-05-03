@@ -20,18 +20,17 @@ void WiFi_CONNECT()
     const char* Sala_1C205_password = "industria50";
     //+---------------------------------------------------+
 
-    Serial.println("WiFi Connecting...");
-    SerialOTA.println("WiFi Connecting...");
+    SerialOTA.println("WiFi1 Connecting...");
     //WiFi.mode(WIFI_STA);
     
     
     if(by_stored_protocol_option==MODBUS_PROTOCOL_LinkBox)
     {
         /*************** OLED *********************/
-        mb.OledLine1("MODBUS > SSID:LinkBox ");
-        mb.OledLine2("   WiFi     ");
-        mb.OledLine3(" CONNECT...  ");
-        mb.OledUpdate_Static(1,2,2);
+        lbmb.OledLine1("MODBUS > SSID:LinkBox ");
+        lbmb.OledLine2("   WiFi     ");
+        lbmb.OledLine3(" CONNECT...  ");
+        lbmb.OledUpdate_Static(1,2,2);
         delay(3000);
         //*****************************************/
         WiFi.begin(LinkBox_ssid, LinkBox_password); //MODBUS and MQTT LinkBox SSID and Password
@@ -39,10 +38,10 @@ void WiFi_CONNECT()
     else if(by_stored_protocol_option==MODBUS_PROTOCOL_1C205)
     {
         /*************** OLED *********************/
-        mb.OledLine1("MODBUS>SSID:INDUSTRIA");
-        mb.OledLine2("   WiFi     ");
-        mb.OledLine3(" CONNECT...  ");
-        mb.OledUpdate_Static(1,2,2);
+        lbmb.OledLine1("MODBUS>SSID:INDUSTRIA");
+        lbmb.OledLine2("   WiFi     ");
+        lbmb.OledLine3(" CONNECT...  ");
+        lbmb.OledUpdate_Static(1,2,2);
         delay(3000);
         //*****************************************/
         WiFi.begin(Sala_1C205_ssid, Sala_1C205_password); //Connects to the classroom router 
@@ -50,10 +49,10 @@ void WiFi_CONNECT()
     else if(by_stored_protocol_option==MQTT_PROTOCOL)
     {
         /*************** OLED *********************/
-        mb.OledLine1(" MQTT > SSID:LinkBox ");
-        mb.OledLine2("   WiFi     ");
-        mb.OledLine3(" CONNECT...  ");
-        mb.OledUpdate_Static(1,2,2);
+        lbmb.OledLine1(" MQTT > SSID:LinkBox ");
+        lbmb.OledLine2("   WiFi     ");
+        lbmb.OledLine3(" CONNECT...  ");
+        lbmb.OledUpdate_Static(1,2,2);
         delay(3000);
         //*****************************************/
         WiFi.begin(LinkBox_ssid, LinkBox_password); //MODBUS and MQTT LinkBox SSID and Password
@@ -61,10 +60,10 @@ void WiFi_CONNECT()
     else if(by_stored_protocol_option==ALEXA_PROTOCOL)
     {
         /*************** OLED *********************/
-        mb.OledLine1("Alexa > SSID:DOMOTICA");
-        mb.OledLine2("   WiFi     ");
-        mb.OledLine3(" CONNECT...  ");
-        mb.OledUpdate_Static(1,2,2);
+        lbmb.OledLine1("Alexa > SSID:DOMOTICA");
+        lbmb.OledLine2("   WiFi     ");
+        lbmb.OledLine3(" CONNECT...  ");
+        lbmb.OledUpdate_Static(1,2,2);
         delay(3000);
         //*****************************************/
         WiFi.begin(Alexa_ssid, Alexa_password); //Connects to the Home Automation  classroom router
@@ -76,10 +75,10 @@ void WiFi_CONNECT()
         by_stored_protocol_option = EEPROM.read(0);  //selected protocol
 
         /*************** OLED *********************/
-        mb.OledLine1("MODBUS > SSID:LinkBox ");
-        mb.OledLine2("   WiFi     ");
-        mb.OledLine3(" CONNECT...  ");
-        mb.OledUpdate_Static(1,2,2);
+        lbmb.OledLine1("MODBUS > SSID:LinkBox ");
+        lbmb.OledLine2("   WiFi     ");
+        lbmb.OledLine3(" CONNECT...  ");
+        lbmb.OledUpdate_Static(1,2,2);
         delay(3000);
         //*****************************************/
         WiFi.begin(LinkBox_ssid, LinkBox_password); 
@@ -88,7 +87,6 @@ void WiFi_CONNECT()
   
     while (WiFi.waitForConnectResult() != WL_CONNECTED) 
     {
-
         //+--- If the PUSH Button is pressed go to MENU ---+
         if(digitalRead(def_pin_PUSH_BUTTON) == 1)
         {
@@ -102,10 +100,10 @@ void WiFi_CONNECT()
         Serial.println("WiFi Connection Failed! Rebooting...");
         SerialOTA.println("WiFi Connection Failed! Rebooting..."); //+--Putty PORT 23
         //
-        mb.OledLine1("             ");
-        mb.OledLine2("   WiFi     ");
-        mb.OledLine3(" FAILED!!!   ");        
-        mb.OledUpdate();
+        lbmb.OledLine1("             ");
+        lbmb.OledLine2("   WiFi     ");
+        lbmb.OledLine3(" FAILED!!!   ");        
+        lbmb.OledUpdate();
         delay(2000);
 
         //+--- If the PUSH Button is pressed go to MENU---+
@@ -119,10 +117,10 @@ void WiFi_CONNECT()
         }
 
         //
-        mb.OledLine1("             ");
-        mb.OledLine2("   WiFi     ");
-        mb.OledLine3(" RESTART...  ");
-        mb.OledUpdate();
+        lbmb.OledLine1("             ");
+        lbmb.OledLine2("   WiFi     ");
+        lbmb.OledLine3(" RESTART...  ");
+        lbmb.OledUpdate();
         delay(2000);
 
         //+--- If the PUSH Button is pressed go to MENU---+
@@ -138,46 +136,45 @@ void WiFi_CONNECT()
         ESP.restart();
     }
     
-
     if(b_GoToLoop==false)
     {
         if(by_stored_protocol_option==MODBUS_PROTOCOL_LinkBox)
         {
             //*****************************************/
-            mb.OledLine1("MODBUS > SSID:LinkBox");
-            mb.OledLine2("  WiFi OK    ");
-            mb.OledLine3("             ");
-            mb.OledUpdate_Static(1,2,2);
+            lbmb.OledLine1("MODBUS > SSID:LinkBox");
+            lbmb.OledLine2("  WiFi OK    ");
+            lbmb.OledLine3("             ");
+            lbmb.OledUpdate_Static(1,2,2);
             delay(3000);
             //*****************************************/
         }
         else if(by_stored_protocol_option==MODBUS_PROTOCOL_1C205)
         {
             //*****************************************/
-            mb.OledLine1("MODBUS>SSID:INDUSTRIA");
-            mb.OledLine2("  WiFi OK    ");
-            mb.OledLine3("             ");
-            mb.OledUpdate_Static(1,2,2);
+            lbmb.OledLine1("MODBUS>SSID:INDUSTRIA");
+            lbmb.OledLine2("  WiFi OK    ");
+            lbmb.OledLine3("             ");
+            lbmb.OledUpdate_Static(1,2,2);
             delay(3000);
             //*****************************************/
         }
         else if(by_stored_protocol_option==MQTT_PROTOCOL)
         {
             //*****************************************/
-            mb.OledLine1(" MQTT > SSID:LinkBox");
-            mb.OledLine2("  WiFi OK    ");
-            mb.OledLine3("             ");
-            mb.OledUpdate_Static(1,2,2);
+            lbmb.OledLine1(" MQTT > SSID:LinkBox");
+            lbmb.OledLine2("  WiFi OK    ");
+            lbmb.OledLine3("             ");
+            lbmb.OledUpdate_Static(1,2,2);
             delay(3000);
             //*****************************************/
         }
         else if(by_stored_protocol_option==ALEXA_PROTOCOL)
         {
             //*****************************************/
-            mb.OledLine1("Alexa > SSID:Domotica");
-            mb.OledLine2("  WiFi OK    ");
-            mb.OledLine3("             ");
-            mb.OledUpdate_Static(1,2,2);
+            lbmb.OledLine1("Alexa > SSID:Domotica");
+            lbmb.OledLine2("  WiFi OK    ");
+            lbmb.OledLine3("             ");
+            lbmb.OledUpdate_Static(1,2,2);
             delay(3000);
             //*****************************************/
         }
@@ -186,24 +183,24 @@ void WiFi_CONNECT()
         //Modbus IP Config 
         if(by_stored_protocol_option==MODBUS_PROTOCOL_LinkBox)
         {
-            mb.config();  //MODBUS Only
+            //mb.config();  //MODBUS Only
             //*****************************************/
-            mb.OledLine1("MODBUS>SSID:LinkBox");
-            mb.OledLine2(" MODBUS OK   ");
-            mb.OledLine3("             ");
-            mb.OledUpdate_Static(1,2,2);
+            lbmb.OledLine1("MODBUS>SSID:LinkBox");
+            lbmb.OledLine2(" MODBUS OK   ");
+            lbmb.OledLine3("             ");
+            lbmb.OledUpdate_Static(1,2,2);
             delay(3000);
             //*****************************************/
         }
         
         if(by_stored_protocol_option==MODBUS_PROTOCOL_1C205)
         {
-            mb.config();  //MODBUS Only
+            //mb.config();  //MODBUS Only
             //*****************************************/
-            mb.OledLine1("MODBUS>SSID:INDUSTRIA");
-            mb.OledLine2(" MODBUS OK   ");
-            mb.OledLine3("             ");
-            mb.OledUpdate_Static(1,2,2);
+            lbmb.OledLine1("MODBUS>SSID:INDUSTRIA");
+            lbmb.OledLine2(" MODBUS OK   ");
+            lbmb.OledLine3("             ");
+            lbmb.OledUpdate_Static(1,2,2);
             delay(3000);
             //*****************************************/
         }
@@ -223,7 +220,7 @@ void WiFi_CONNECT()
     s_mac += String(WiFi.macAddress());
     
     Serial.print("MAC: ");   Serial.println(s_mac);  
-    //SerialOTA.print("MAC: "); SerialOTA.println(s_mac);
+    SerialOTA.print("MAC: "); SerialOTA.println(s_mac);
     //const char mac[] = (String(WiFi.macAddress())).c_str();
 
     if(s_mac==LB0_Id1_MAC){ s_client_id += LB0_Id1_client; s_mqtt_broker_IP += LB0_mqtt_broker_IP; u_thisDeviceId= LB0_Id1_MQTT; }

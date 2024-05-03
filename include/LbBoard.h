@@ -8,10 +8,11 @@
 //  by Prof. Fábio Vincenzi and Prof. Renato Carrijo                                           |
 //                                                                 Updated: 2023/10/28         |         
 //+--------------------------------------------------------------------------------------------+
+#ifndef LBBOARD_H
+#define LBBOARD_H
 
-#ifndef LBMODBUS_H
-#define LBMODBUS_H
 #include "Arduino.h"
+
 
 #define MAX_REGS     32
 #define MAX_FRAME   128
@@ -54,21 +55,24 @@ enum {
     MB_REPLY_NORMAL = 0x03,
 };
 
-typedef struct TRegister {
+
+typedef struct LBTRegister {
     word address;
     word value;
-    struct TRegister* next;
-} TRegister;
+    struct LBTRegister* next;
+} LBTRegister;
 
-class LbModbus {
+
+class LbBoard {
     private:
-        TRegister *_regs_head;
-        TRegister *_regs_last;
+        LBTRegister *_regs_head;
+        LBTRegister *_regs_last;
 
+#if 0
+        void exceptionResponse(byte fcode, byte excode);
         void readRegisters(word startreg, word numregs);
         void writeSingleRegister(word reg, word value);
         void writeMultipleRegisters(byte* frame,word startreg, word numoutputs, byte bytecount);
-        void exceptionResponse(byte fcode, byte excode);
         #ifndef USE_HOLDING_REGISTERS_ONLY
             void readCoils(word startreg, word numregs);
             void readInputStatus(word startreg, word numregs);
@@ -77,21 +81,33 @@ class LbModbus {
             void writeMultipleCoils(byte* frame,word startreg, word numoutputs, byte bytecount);
         #endif
 
-        TRegister* searchRegister(word addr);
-
         void addReg(word address, word value = 0);
         bool Reg(word address, word value);
         word Reg(word address);
+#endif
+
+        LBTRegister* searchRegister(word addr);
 
     protected:
         byte *_frame;
         byte  _len;
         byte  _reply;
-        void receivePDU(byte* frame); 
+        bool receivePDU(byte* frame); 
 
 
     public:
-        LbModbus();
+        LbBoard();
+        void Task(void);
+        bool isOledDisable(void);
+        void ModbusInit(void);
+        
+        bool OledShowValueFc1(uint8_t fc, uint16_t address);
+        bool OledShowValueFc2(uint8_t fc, uint16_t address);
+        uint16_t OledShowValueFc3(uint8_t fc, uint16_t address);
+        uint16_t OledShowValueFc4(uint8_t fc, uint16_t address);
+        bool OledShowValueFc5(uint8_t fc, uint16_t address);
+        uint16_t OledShowValueFc6(uint8_t fc, uint16_t address);
+
 
         void addHreg(word offset, word value = 0);
         bool Hreg(word offset, word value);
@@ -121,12 +137,14 @@ class LbModbus {
             void OledLine1(const char txt[]);
             void OledLine2(const char txt[]);
             void OledLine3(const char txt[]);
-            void ModbusOledLine3(byte fc, word reg, word numregs);
+
             void OledUpdate();  
             void OledUpdate_Static(int txtSizeLine1, int txtSizeLine2, int txtSizeLine3);
             
-            void displayInfo_MqttModbus(uint8_t fcode, uint16_t field1, uint16_t field2); 
+            bool displayInfo_MqttModbus(uint8_t fcode, uint16_t field1, uint16_t field2); 
         #endif
 };
+
+
 
 #endif //LBMODBUS_H
