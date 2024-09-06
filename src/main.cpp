@@ -120,7 +120,7 @@ bool haveClient = false;     //client detection flag
 unsigned long ul_MqttPoll_PrevTime = 0;  // will store last time sensors was read
 
 //+--- SENSORS POLLING TIME ---+
-#define def_sensors_polling_ms 5000  // sensors polling time (milliseconds)
+#define def_sensors_polling_ms 1000  // sensors polling time (milliseconds)
 unsigned long ul_SensorRead_PrevTime = 0;  // will store last time sensors was read
 
 //+--- BUTTOM PRESS/RELEASE TIME ---+

@@ -10,7 +10,7 @@
 
         //+----------------------------------------------------------------------------+
         //+--- If Enable_COMMON_ANODE_RGB is not defined, common  cathode is selected:
-        // #define Enable_COMMON_ANODE_RGB
+         #define Enable_COMMON_ANODE_RGB
         //+----------------------------------------------------------------------------+
 
 
@@ -49,7 +49,7 @@
         //+--- Register Type   	Register Number  	Register Size 	Permission
         //+- Holding Register		  40001-49999			  16 bit	          R     ---+
         #define hr_RGB_R_OFFSET  0    // Offset do Holding Register Modbus (2 bytes) PWM GPIO15
-        #define hr_RGB_G_OFFSET  1    // Offset do Holding Register Modbus (2 bytes) PWM' GPIO2
+        #define hr_RGB_G_OFFSET  1    // Offset do Holding Register Modbus (2 bytes) PWM GPIO2
         #define hr_RGB_B_OFFSET  2    // Offset do Holding Register Modbus (2 bytes) PWM GPIO0
 
 
